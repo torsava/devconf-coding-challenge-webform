@@ -53,17 +53,15 @@
                     <label for="example-text-input">
                         Your name:
                     </label>
-                    <textarea class="form-control" id="name" name="name" rows="1">
-                        {{- simple_feedback.get('name', '') -}}
-                    </textarea>
+                    <input class="form-control" id="name" name="name"
+                       value="{{ simple_feedback.get('name', '') }}">
                 </div>
                 <div class="form-group">
                     <label for="example-text-input">
                         Your email address:
                     </label>
-                    <textarea class="form-control" id="email" name="email" rows="1">
-                        {{- simple_feedback.get('email', '') -}}
-                    </textarea>
+                    <input class="form-control" id="email" name="email"
+                        value="{{ simple_feedback.get('email', '') }}">
                 </div>
                 <div class="form-group">
                     <label for="example-text-input">
