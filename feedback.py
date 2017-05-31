@@ -17,34 +17,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = database = SQLAlchemy(app)
 
-class Category(db.Model):
-    order = db.Column(db.Integer)
-    slug = db.Column(db.Unicode, primary_key=True)
-    icon = db.Column(db.Unicode, unique=True)
-    color = db.Column(db.Unicode)
-    question = db.Column(db.Unicode)
-
-    __mapper_args__ = {"order_by": order}
-
-class Lesson(db.Model):
-    order = db.Column(db.Integer)
-    slug = db.Column(db.Unicode, primary_key=True)
-    title = db.Column(db.Unicode)
-
-    __mapper_args__ = {"order_by": order}
-
-class LessonFeedback(db.Model):
-    token = db.Column(db.Unicode, primary_key=True)
-    category_slug = db.Column(db.Unicode, db.ForeignKey(Category.slug), primary_key=True)
-    lesson_slug = db.Column(db.Unicode, db.ForeignKey(Lesson.slug), primary_key=True)
-    mark = db.Column(db.Unicode, nullable=True)
-    timestamp = db.Column(db.DateTime(timezone=True),
-                          server_default=db.func.now())
-
-    @property
-    def slug(self):
-        return 'feedback-{}-{}'.format(self.category_slug, self.lesson_slug)
-
 class SimpleFeedback(db.Model):
     token = db.Column(db.Unicode, primary_key=True)
     question_slug = db.Column(db.Unicode, primary_key=True)
@@ -52,23 +24,7 @@ class SimpleFeedback(db.Model):
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
 
-
-SIMPLE_QUESTIONS = 'mark', 'missing', 'message', 'secret'
-PRIVATE_QUESTIONS = ['secret']
-
-assert set(PRIVATE_QUESTIONS) < set(SIMPLE_QUESTIONS)
-
-
-def add_order(*items):
-    for i, item in enumerate(items):
-        item.order = i
-    return items
-
-
-def rating_selectors(r):
-    """Helper for a CSS trick to highlight icons based on slected radio button
-    """
-    return [r * i for i in range(10)]
+SIMPLE_QUESTIONS = 'name', 'email', 'file_1', 'file_2', 'file_3'
 
 
 @app.route('/')
@@ -84,25 +40,9 @@ def form(token=None):
     if not (5 < len(token) < 20):
         abort(404)
 
-    categories = list(db.session.query(Category))
-    lessons = list(db.session.query(Lesson))
-
     if request.method == 'POST':
         print(request.form)
-        _prefetch = (list(db.session.query(LessonFeedback).filter_by(token=token)),
-                     list(db.session.query(SimpleFeedback).filter_by(token=token)))
-        for cat in categories:
-            for lesson in lessons:
-                feedback = LessonFeedback(
-                    token=token,
-                    category_slug=cat.slug,
-                    lesson_slug=lesson.slug,
-                )
-                mark = request.form.get(feedback.slug)
-                if mark == 'None':
-                    mark = None
-                feedback.mark = mark
-                db.session.merge(feedback)
+        _prefetch = (list(db.session.query(SimpleFeedback).filter_by(token=token)))
         for question in SIMPLE_QUESTIONS:
             answer = request.form.get(question)
             db.session.merge(SimpleFeedback(
@@ -113,22 +53,13 @@ def form(token=None):
         db.session.commit()
         return redirect(url_for('form', token=token))
 
-    lesson_feedback = {
-        f.slug: f.mark
-        for f in db.session.query(LessonFeedback).filter_by(token=token)}
     simple_feedback = {
         f.question_slug: f.answer
         for f in db.session.query(SimpleFeedback).filter_by(token=token)}
 
-    simple_feedback.setdefault('mark', '?')
-
     return render_template(
         'index.html',
-        categories=categories,
-        lessons=lessons,
-        lesson_feedback=lesson_feedback,
         simple_feedback=simple_feedback,
-        rating_selectors=rating_selectors,
         token=token,
         show_thankyou=show_thankyou,
     )
@@ -157,31 +88,6 @@ def results():
                         headers={"Content-Disposition": 'inline; filename="results.csv"'},
                         mimetype='text/csv')
 
-
-INITIAL_CATEGORIES = add_order(
-    Category(slug='like', icon='heart', color='#D9534F', question='Jak se ti lekce líbila?'),
-    Category(slug='topic', icon='star', color='#F0AD4E', question='Jak přínosné bylo téma?'),
-    Category(slug='learn', icon='rocket', color='#0275D8', question='Kolik nového ses naučil/a?'),
-    #Category(slug='mat', 'thumbs-o-up', '#5CB85C', 'Jak dobré byly materiály?'),
-)
-
-INITIAL_LESSONS = add_order(
-    Lesson(slug='requests-click', title='Requests & Click'),
-    Lesson(slug='flask', title='Flask'),
-    Lesson(slug='moduly', title='Moduly & PyPI'),
-    Lesson(slug='testovani', title='Testování'),
-    Lesson(slug='dokumentace', title='Dokumentace'),
-    Lesson(slug='pandas', title='Pandas'),
-    Lesson(slug='numpy', title='NumPy'),
-    Lesson(slug='cython', title='Cython'),
-    Lesson(slug='pyqt', title='PyQt'),
-    Lesson(slug='async', title='Asyncio'),
-    Lesson(slug='magie', title='Magie'),
-    Lesson(slug='micropython', title='MicroPython'),
-    Lesson(slug='semestralka', title='Semestrálka'),
-)
-
-
 @click.group()
 def cli():
     pass
@@ -209,8 +115,6 @@ def serve(port, debug, db):
             if not os.path.exists(filename):
                 print('Filling initial data in', filename)
                 database.create_all()
-                for item in INITIAL_CATEGORIES + INITIAL_LESSONS:
-                    database.session.add(item)
                 database.session.commit()
         db = 'sqlite:///' + filename
     app.config['SQLALCHEMY_DATABASE_URI'] = db
