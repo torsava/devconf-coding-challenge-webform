@@ -1,4 +1,9 @@
-A feedback form for the [MI-PYT course].
+Form to send the solutions to the Red Hat–PyCon CZ Coding Challenge
 
+# How to deploy:
 
-[MI-PYT course]: https://github.com/cvut/MI-PYT
+    $ python3 -m venv venv
+    $ source venv/bin/activate
+    $ pip install -r requirements.txt
+    $ python form.py serve
+
