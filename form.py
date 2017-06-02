@@ -20,12 +20,11 @@ CHECKBOXES = 'wants_job',
 
 FILES = 'file_1', 'file_2', 'file_3'
 
-UPLOAD_FOLDER = './files'
+app.config['UPLOAD_FOLDER'] = './files'  # can get overwritten in wsgi.py
 ALLOWED_EXTENSIONS = set(['py'])
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 db = database = SQLAlchemy(app)
 
@@ -116,7 +115,7 @@ def form(token=None):
 
 @app.route('/file/<string:filename>/')
 def file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/results.csv')
