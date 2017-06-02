@@ -58,10 +58,16 @@ def form(token=None, warning=None):
     if not (5 < len(token) < 20):
         abort(404)
 
-    if request.method == 'POST':
-        _prefetch = (list(db.session.query(Data).filter_by(token=token)),
-                     list(db.session.query(File).filter_by(token=token)))
+    # Saving the results into a list eliminates further SQL queries in POST
+    # processing, saving it to a dict addressable by something else than the
+    # object does not.
+    prefetch = {'data': list(db.session.query(Data).filter_by(token=token)),
+                'file': list(db.session.query(File).filter_by(token=token))}
 
+    data = { f.question_slug: f.answer for f in prefetch['data']}
+    files = { f.file_slug: f.filename for f in prefetch['file']}
+
+    if request.method == 'POST':
         for question in QUESTIONS:
             answer = request.form.get(question)
             db.session.merge(Data(
@@ -95,13 +101,6 @@ def form(token=None, warning=None):
 
         db.session.commit()
         return redirect(url_for('form', token=token, warning=warning))
-
-    data = {
-        f.question_slug: f.answer
-        for f in db.session.query(Data).filter_by(token=token)}
-    files = {
-        f.file_slug: f.filename
-        for f in db.session.query(File).filter_by(token=token)}
 
     return render_template(
         'index.html',
