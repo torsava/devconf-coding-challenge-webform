@@ -15,7 +15,7 @@ import click
 
 app = Flask(__name__)
 
-SIMPLE_QUESTIONS = 'name', 'email'
+QUESTIONS = 'name', 'email'
 
 FILES = 'file_1', 'file_2', 'file_3'
 
@@ -28,7 +28,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 db = database = SQLAlchemy(app)
 
-class SimpleFeedback(db.Model):
+class Data(db.Model):
     token = db.Column(db.Unicode, primary_key=True)
     question_slug = db.Column(db.Unicode, primary_key=True)
     answer = db.Column(db.Unicode, nullable=True)
@@ -61,10 +61,10 @@ def form(token=None):
 
     if request.method == 'POST':
         print(request.form)
-        _prefetch = (list(db.session.query(SimpleFeedback).filter_by(token=token)))
-        for question in SIMPLE_QUESTIONS:
+        _prefetch = (list(db.session.query(Data).filter_by(token=token)))
+        for question in QUESTIONS:
             answer = request.form.get(question)
-            db.session.merge(SimpleFeedback(
+            db.session.merge(Data(
                 token=token,
                 question_slug=question,
                 answer=answer,
@@ -89,13 +89,13 @@ def form(token=None):
         db.session.commit()
         return redirect(url_for('form', token=token))
 
-    simple_feedback = {
+    data = {
         f.question_slug: f.answer
-        for f in db.session.query(SimpleFeedback).filter_by(token=token)}
+        for f in db.session.query(Data).filter_by(token=token)}
 
     return render_template(
         'index.html',
-        simple_feedback=simple_feedback,
+        data=data,
         token=token,
         show_thankyou=show_thankyou,
     )
@@ -113,7 +113,7 @@ def results():
                 'lesson': feedback.lesson_slug,
                 'answer': feedback.mark,
             })
-        for feedback in SimpleFeedback.query.order_by(db.func.random()):
+        for feedback in Data.query.order_by(db.func.random()):
             if feedback.question_slug not in PRIVATE_QUESTIONS:
                 writer.writerow({
                     'user_hash': hashlib.sha256(feedback.token.encode('utf-8')).hexdigest(),
