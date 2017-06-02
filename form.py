@@ -7,7 +7,7 @@ import io
 import hashlib
 
 from flask import Flask, render_template, request, abort, redirect, url_for
-from flask import Response
+from flask import Response, send_from_directory
 from jinja2 import StrictUndefined
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -62,7 +62,9 @@ def form(token=None):
 
     if request.method == 'POST':
         print(request.form)
-        _prefetch = (list(db.session.query(Data).filter_by(token=token)))
+        _prefetch = (list(db.session.query(Data).filter_by(token=token)),
+                     list(db.session.query(File).filter_by(token=token)))
+
         for question in QUESTIONS:
             answer = request.form.get(question)
             db.session.merge(Data(
@@ -99,13 +101,23 @@ def form(token=None):
     data = {
         f.question_slug: f.answer
         for f in db.session.query(Data).filter_by(token=token)}
+    files = {
+        f.file_slug: f.filename
+        for f in db.session.query(File).filter_by(token=token)}
 
     return render_template(
         'index.html',
         data=data,
+        files=files,
+        FILES=FILES,
         token=token,
         show_thankyou=show_thankyou,
     )
+
+@app.route('/file/<string:filename>/')
+def file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
 
 @app.route('/results.csv')
 def results():
