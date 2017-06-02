@@ -48,7 +48,8 @@
                     </p>
                 </div>
             </div>
-            <form method="POST" action="{{ url_for('form', token=token) }}">
+            <form method="POST" action="{{ url_for('form', token=token) }}"
+                    enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="example-text-input">
                         Your name:
@@ -70,9 +71,25 @@
                             – Please upload a Python 3 script that solves the problem.
                         </span>
                     </label>
-                    <textarea class="form-control" id="file_1" name="file_1" rows="5">
-                        {{- simple_feedback.get('file_1', '') -}}
-                    </textarea>
+                    <input class="form-control" id="file_1" name="file_1" type="file">
+                </div>
+                <div class="form-group">
+                    <label for="example-text-input">
+                        Solution to the 2st problem
+                        <span class="text-muted">
+                            – Please upload a Python 3 script that solves the problem.
+                        </span>
+                    </label>
+                    <input class="form-control" id="file_2" name="file_2" type="file">
+                </div>
+                <div class="form-group">
+                    <label for="example-text-input">
+                        Solution to the 3st problem
+                        <span class="text-muted">
+                            – Please upload a Python 3 script that solves the problem.
+                        </span>
+                    </label>
+                    <input class="form-control" id="file_3" name="file_3" type="file">
                 </div>
                 <div class="form-group form-inline">
                     <button type="submit" class="btn btn-primary form-control">Send</button>

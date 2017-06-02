@@ -10,11 +10,22 @@ from flask import Flask, render_template, request, abort, redirect, url_for
 from flask import Response
 from jinja2 import StrictUndefined
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 import click
 
 app = Flask(__name__)
 
+SIMPLE_QUESTIONS = 'name', 'email'
+
+FILES = 'file_1', 'file_2', 'file_3'
+
+UPLOAD_FOLDER = './files'
+ALLOWED_EXTENSIONS = set(['py'])
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 db = database = SQLAlchemy(app)
 
 class SimpleFeedback(db.Model):
@@ -24,8 +35,16 @@ class SimpleFeedback(db.Model):
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
 
-SIMPLE_QUESTIONS = 'name', 'email', 'file_1', 'file_2', 'file_3'
+class File(db.Model):
+    token = db.Column(db.Unicode, primary_key=True)
+    file_slug = db.Column(db.Unicode, primary_key=True)
+    filename = db.Column(db.Unicode, nullable=True)
+    timestamp = db.Column(db.DateTime(timezone=True),
+                          server_default=db.func.now())
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 @app.route('/form/')
@@ -50,6 +69,23 @@ def form(token=None):
                 question_slug=question,
                 answer=answer,
             ))
+
+        # TODO guard against empty name
+        user_name = request.form.get('name')
+        for file_slug in FILES: # TODO union?
+            if file_slug in request.files:
+                file = request.files[file_slug]
+                if file and allowed_file(file.filename):
+                    filename = token + "-" + secure_filename(user_name) \
+                            + "-" + file_slug + ".py"
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                    db.session.merge(File(
+                        token=token,
+                        file_slug=file_slug,
+                        filename=filename,
+                    ))
+
         db.session.commit()
         return redirect(url_for('form', token=token))
 
