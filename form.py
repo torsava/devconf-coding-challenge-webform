@@ -28,6 +28,9 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def path_file(filename):
+    return os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
 db = database = SQLAlchemy(app)
 
 class Data(db.Model):
@@ -89,9 +92,15 @@ def form(token=None, warning=None):
                 if not allowed_file(file.filename):
                     warning = 'extension'
                 else:
+                    # Remove the previous file if any.
+                    # This is necessary if the user has changed his name after
+                    # the file was saved last time
+                    if file_slug in files and files[file_slug]:
+                        os.remove(path_file(files[file_slug]))
+
                     filename = token + "-" + secure_filename(user_name) \
                             + "-" + file_slug + ".py"
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    file.save(path_file(filename))
 
                     db.session.merge(File(
                         token=token,
