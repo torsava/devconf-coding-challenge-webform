@@ -59,7 +59,6 @@ def form(token=None, warning=None):
         abort(404)
 
     if request.method == 'POST':
-        print(request.form)
         _prefetch = (list(db.session.query(Data).filter_by(token=token)),
                      list(db.session.query(File).filter_by(token=token)))
 
