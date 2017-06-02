@@ -66,6 +66,13 @@
                 </div>
                 <div class="form-group">
                     <label for="example-text-input">
+                        <input id="wants_job" name="wants_job" type="checkbox"
+                            {%- if data.get('wants_job', '0') != '0' -%}checked{% endif %}>
+                        I don't mind being contacted about a job offer at Red Hat one time
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="example-text-input">
                         Solution to the 1st problem
                         <span class="text-muted">
                             – Please upload a Python 3 script that solves the problem.

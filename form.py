@@ -16,6 +16,7 @@ import click
 app = Flask(__name__)
 
 QUESTIONS = 'name', 'email'
+CHECKBOXES = 'wants_job',
 
 FILES = 'file_1', 'file_2', 'file_3'
 
@@ -68,6 +69,12 @@ def form(token=None):
                 token=token,
                 question_slug=question,
                 answer=answer,
+            ))
+        for checkbox in CHECKBOXES:
+            db.session.merge(Data(
+                token=token,
+                question_slug=checkbox,
+                answer=checkbox in request.form,
             ))
 
         # TODO guard against empty name
