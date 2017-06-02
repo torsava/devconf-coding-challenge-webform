@@ -29,6 +29,12 @@
         </nav>
 
         <div class="container">
+            {% if warning == 'extension' %}
+                <div class="alert alert-warning" role="alert">
+                    One of the files you supplied does not have a Python file
+                    extension (.py) and has not been uploaded.
+                </div>
+            {% endif %}
             {% if show_thankyou %}
                 <div class="alert alert-success" role="alert">
                     Thank you for submiting an entry!

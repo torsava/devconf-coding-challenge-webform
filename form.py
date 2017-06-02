@@ -17,14 +17,16 @@ app = Flask(__name__)
 
 QUESTIONS = 'name', 'email'
 CHECKBOXES = 'wants_job',
-
 FILES = 'file_1', 'file_2', 'file_3'
-
-app.config['UPLOAD_FOLDER'] = './files'  # can get overwritten in wsgi.py
-ALLOWED_EXTENSIONS = set(['py'])
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
+app.config['UPLOAD_FOLDER'] = './files'  # can get overwritten in wsgi.py
+ALLOWED_EXTENSIONS = set(['py'])
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 db = database = SQLAlchemy(app)
 
@@ -42,14 +44,11 @@ class File(db.Model):
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.route('/')
 @app.route('/form/')
 @app.route('/form/<token>/', methods=['GET', 'POST'])
-def form(token=None):
+@app.route('/form/<token>/<warning>/', methods=['GET', 'POST'])
+def form(token=None, warning=None):
     show_thankyou = bool(token)
     if token is None:
         # Generate a random token
@@ -78,12 +77,13 @@ def form(token=None):
                 answer=checkbox in request.form,
             ))
 
-        # TODO guard against empty name
         user_name = request.form.get('name')
-        for file_slug in FILES: # TODO union?
-            if file_slug in request.files:
-                file = request.files[file_slug]
-                if file and allowed_file(file.filename):
+        for file_slug in [f for f in FILES if f in request.files]:
+            file = request.files[file_slug]
+            if file:
+                if not allowed_file(file.filename):
+                    warning = 'extension'
+                else:
                     filename = token + "-" + secure_filename(user_name) \
                             + "-" + file_slug + ".py"
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -95,7 +95,7 @@ def form(token=None):
                     ))
 
         db.session.commit()
-        return redirect(url_for('form', token=token))
+        return redirect(url_for('form', token=token, warning=warning))
 
     data = {
         f.question_slug: f.answer
@@ -111,6 +111,7 @@ def form(token=None):
         FILES=FILES,
         token=token,
         show_thankyou=show_thankyou,
+        warning=warning,
     )
 
 @app.route('/file/<string:filename>/')
