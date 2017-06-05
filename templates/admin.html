@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+    <head>
+        <title>Red Hat–PyCon CZ Coding Challenge</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        <style>
+            .footer {
+                background-color: #ECEEEF;
+                padding: 1em;
+                margin-top: 5em;
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Red Hat</li>
+                <li class="breadcrumb-item active">PyCon CZ Coding Challenge</li>
+                <li class="breadcrumb-item active">Admin</li>
+            </ol>
+        </nav>
+
+        <div class="container">
+            <h1>Red Hat–PyCon CZ Coding Challenge</h1>
+            <div class="row">
+                <div class="col">
+                    <p class="lead">
+                        Admin access granted.
+                    </p>
+                </div>
+            </div>
+            <table class="table">
+                <tr>
+                    <th>
+                        Name<br/>
+                        Email
+                    </th>
+                    <th>
+                        Wants job<br/>
+                        Token
+                    <th>
+                        File 1
+                    </th>
+                    <th>
+                        File 2
+                    </th>
+                    <th>
+                        File 3
+                    </th>
+                </tr>
+                {% for token, elem in data %}
+                <tr>
+                    <td>
+                        {{ elem["name"] }}<br/>
+                        {{ elem["email"] }}
+                    </td>
+                    <td>
+                        {{ elem["wants_job"] }}<br/>
+                        {{ token }}
+                    </td>
+                    {% for file_slug in FILES %}
+                    <td>
+                        {% if file_slug in elem %}
+                            <a href="{{ url_for('file', filename=elem[file_slug]) }}" target="_blank">
+                                File {{ loop.index }}</a>
+                        {% else %}
+                            No file
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <p class="text-right">
+                    © 2017, Petr Viktorin, Tomáš Orsava.
+                    Licensed under
+                    <a href="https://github.com/encukou/feedback-form/blob/master/LICENSE">MIT</a>.
+                </p>
+                <p class="text-right">
+                    Source code on
+                    <a href="https://github.com/torsava/pyconcz-form">Github</a>.
+                </p>
+            </div>
+        </footer>
+    </body>
+</html>

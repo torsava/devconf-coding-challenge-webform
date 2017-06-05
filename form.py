@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 import base64
 import os
 import urllib.parse
@@ -133,29 +133,30 @@ def file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-@app.route('/results.csv')
-def results():
-    result_file = io.StringIO()
-    with result_file as f:
-        writer = csv.DictWriter(f, ['user_hash', 'lesson', 'category', 'answer'])
-        writer.writeheader()
-        for feedback in LessonFeedback.query.order_by(db.func.random()):
-            writer.writerow({
-                'user_hash': hashlib.sha256(feedback.token.encode('utf-8')).hexdigest(),
-                'category': feedback.category_slug,
-                'lesson': feedback.lesson_slug,
-                'answer': feedback.mark,
-            })
-        for feedback in Data.query.order_by(db.func.random()):
-            if feedback.question_slug not in PRIVATE_QUESTIONS:
-                writer.writerow({
-                    'user_hash': hashlib.sha256(feedback.token.encode('utf-8')).hexdigest(),
-                    'category': feedback.question_slug,
-                    'answer': feedback.answer,
-                })
-        return Response(response=result_file.getvalue(),
-                        headers={"Content-Disposition": 'inline; filename="results.csv"'},
-                        mimetype='text/csv')
+@app.route('/admin/<password>/')
+def admin(password=None):
+    # Check an environment variable on the OpenShift server that only we know
+    # the value of
+    secret = os.environ.get("OPENSHIFT_APP_UUID")
+    if not secret or secret != password:
+        abort(werkzeug.exceptions.Unauthorized.code)
+
+    all_data = defaultdict(dict)
+    for d in db.session.query(Data):
+        all_data[d.token][d.question_slug] = d.answer
+    for f in db.session.query(File):
+        all_data[f.token][f.file_slug] = f.filename
+
+    iter_data = sorted(all_data.items(), key=lambda d: d[1]["name"])
+
+    return render_template(
+        'admin.html',
+        data=iter_data,
+        QUESTIONS=QUESTIONS,
+        CHECKBOXES=CHECKBOXES,
+        FILES=FILES,
+    )
+
 
 @click.group()
 def cli():
