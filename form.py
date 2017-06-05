@@ -10,7 +10,7 @@ from flask import Flask, render_template, request, abort, redirect, url_for
 from flask import Response, send_from_directory
 from jinja2 import StrictUndefined
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
+import werkzeug
 import click
 
 app = Flask(__name__)
@@ -90,7 +90,7 @@ def form(token=None, warning=None):
             file = request.files[file_slug]
             if file:
                 if not allowed_file(file.filename):
-                    warning = 'extension'
+                    warning = 'wrong-extension'
                 else:
                     # Remove the previous file if any.
                     # This is necessary if the user has changed his name after
@@ -98,7 +98,8 @@ def form(token=None, warning=None):
                     if file_slug in files and files[file_slug]:
                         os.remove(path_file(files[file_slug]))
 
-                    filename = token + "-" + secure_filename(user_name) \
+                    filename = token + "-" \
+                            + werkzeug.utils.secure_filename(user_name) \
                             + "-" + file_slug + ".py"
                     file.save(path_file(filename))
 
@@ -120,6 +121,12 @@ def form(token=None, warning=None):
         show_thankyou=show_thankyou,
         warning=warning,
     )
+
+@app.errorhandler(werkzeug.exceptions.RequestEntityTooLarge)
+def request_entity_too_large(error):
+    """Error 413"""
+    return redirect(request.base_url + "file-too-large/"), \
+        werkzeug.exceptions.RequestEntityTooLarge
 
 @app.route('/file/<string:filename>/')
 def file(filename):

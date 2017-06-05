@@ -29,7 +29,13 @@
         </nav>
 
         <div class="container">
-            {% if warning == 'extension' %}
+            {% if warning == 'file-too-large' %}
+                <div class="alert alert-warning" role="alert">
+                    One of the files you supplied is larger than 1MB and has
+                    not been uploaded.
+                </div>
+            {% endif %}
+            {% if warning == 'wrong-extension' %}
                 <div class="alert alert-warning" role="alert">
                     One of the files you supplied does not have a Python file
                     extension (.py) and has not been uploaded.
