@@ -126,7 +126,7 @@ def form(token=None, warning=None):
 def request_entity_too_large(error):
     """Error 413"""
     return redirect(request.base_url + "file-too-large/"), \
-        werkzeug.exceptions.RequestEntityTooLarge
+        werkzeug.exceptions.RequestEntityTooLarge.code
 
 @app.route('/file/<string:filename>/')
 def file(filename):
