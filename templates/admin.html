@@ -64,7 +64,16 @@
                         {{ elem["email"] }}
                     </td>
                     <td>
-                        {{ elem["wants_job"] }}<br/>
+                        {% if elem["wants_job"] == '1' %}
+                        <span style="color: green; ">
+                            ☑ Yes
+                        </span>
+                        {% else %}
+                        <span style="color: red; ">
+                            ☒ No
+                        </span>
+                        {% endif %}
+                        <br/>
                         {{ token }}
                     </td>
                     {% for file_slug in FILES %}
