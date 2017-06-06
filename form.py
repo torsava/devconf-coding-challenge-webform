@@ -62,7 +62,7 @@ def form(token=None, warning=None):
         # Generate a random token
         # (in Python 3.6+ this would be `secrets.token_urlsafe`)
         bencoded = base64.urlsafe_b64encode(os.urandom(8))
-        token = bencoded.rstrip(b'=').decode('ascii')
+        token = bencoded.rstrip(b'=').decode('ascii').replace("-", "_")
     if not (5 < len(token) < 20):
         abort(404)
 
@@ -105,9 +105,9 @@ def form(token=None, warning=None):
                     if file_slug in files and files[file_slug]:
                         os.remove(path_file(files[file_slug]))
 
-                    filename = token + "-" \
+                    filename = token + "__" \
                             + werkzeug.utils.secure_filename(user_name) \
-                            + "-" + file_slug + ".py"
+                            + "__" + file_slug + ".py"
                     file.save(path_file(filename))
 
                     db.session.merge(File(
