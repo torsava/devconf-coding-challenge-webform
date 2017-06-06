@@ -185,8 +185,10 @@ def admin(password=None, token=None):
         unevaluated = [1 for f in FILES if f in elem and elem[f][1] is None]
         elem["fully_evaluated"] = sum(unevaluated) == 0
 
-    # Sort by the time of the last edit: oldest first so they can be evaluated
-    iter_data = sorted(all_data.items(), key=lambda d: d[1]["last_edit"])
+    # Sort by fully evaluated and by the time of the last edit: oldest first so
+    # they can be evaluated
+    iter_data = sorted(all_data.items(),
+            key=lambda d: (d[1]["fully_evaluated"], d[1]["last_edit"]))
 
     return render_template(
         'admin.html',
