@@ -108,6 +108,7 @@ def form(token=None, warning=None):
                     filename = token + "__" \
                             + werkzeug.utils.secure_filename(user_name) \
                             + "__" + file_slug + ".py"
+                    filename = filename.replace("-", "_") # In case of a dash in user name
                     file.save(path_file(filename))
 
                     db.session.merge(File(
