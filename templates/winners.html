@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+    <head>
+        <title>Red Hat–PyCon CZ Coding Challenge</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        <style>
+            .footer {
+                background-color: #ECEEEF;
+                padding: 1em;
+                margin-top: 5em;
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Red Hat</li>
+                <li class="breadcrumb-item active">PyCon CZ Coding Challenge</li>
+                <li class="breadcrumb-item active">Scoreboard</li>
+            </ol>
+        </nav>
+
+        <div class="container">
+            <h1>Red Hat–PyCon CZ Coding Challenge Scoreboard</h1>
+            <div class="row">
+                <div class="col">
+                    <p class="lead">
+                        Ordered by number of working solutions and the time
+                        where the last file was submitted.
+                    </p>
+                </div>
+            </div>
+            <table class="table">
+                <tr>
+                    <th>
+                        Name
+                        {% if admin_mode %}
+                        <br/>Email
+                        {% endif %}
+                    </th>
+                    <th>
+                        Problem 1
+                    </th>
+                    <th>
+                        Problem 2
+                    </th>
+                    <th>
+                        Problem 3
+                    </th>
+                    <th>
+                        Last submitted
+                        {% if admin_mode %}
+                        <br/>Wants job?
+                        {% endif %}
+                    </th>
+                </tr>
+                {% for token, elem in data %}
+                <tr>
+                    <td>
+                        {{ elem["name"] }}
+                        {% if admin_mode %}
+                            <br/>{{ elem["email"] }}
+                        {% endif %}
+                    </td>
+                    {% for file_slug in FILES %}
+                    <td>
+                        {% if file_slug in elem %}
+                            {%- if elem[file_slug][1] == 1 -%}
+                                <span style="color: green;">☑ Works</span>
+                            {%- elif elem[file_slug][1] == 0 -%}
+                                <span style="color: red;">☒ Doesn't work</span>
+                            {%- else -%}
+                                Not evaluated yet
+                            {%- endif -%}
+                        {% else %}
+                            ☐ Not submitted
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td class="align-middle">
+                        {{ elem["last_edit"].strftime("%d.%m. %X") }}
+
+                        {% if admin_mode %}
+                            <br/>
+                            {% if elem["wants_job"] == '1' %}
+                            <span style="color: green; ">
+                                ☑ Yes
+                            </span>
+                            {% else %}
+                            <span style="color: red; ">
+                                ☒ No
+                            </span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                </form>
+                {% endfor %}
+            </table>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <p class="text-right">
+                    © 2017, Petr Viktorin, Tomáš Orsava.
+                    Licensed under
+                    <a href="https://github.com/encukou/feedback-form/blob/master/LICENSE">MIT</a>.
+                </p>
+                <p class="text-right">
+                    Source code on
+                    <a href="https://github.com/torsava/pyconcz-form">Github</a>.
+                </p>
+            </div>
+        </footer>
+    </body>
+</html>

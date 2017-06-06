@@ -142,14 +142,39 @@ def file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-@app.route('/admin/<password>/')
-@app.route('/admin/<password>/evaluate/<token>/', methods=['GET', 'POST'])
-def admin(password=None, token=None):
+def check_password(password):
     # Check an environment variable on the OpenShift server that only we know
     # the value of
     secret = os.environ.get("OPENSHIFT_APP_UUID")
     if not secret or secret != password:
         abort(werkzeug.exceptions.Unauthorized.code)
+
+def get_all_data(db, only_file_edits=False):
+    all_data = defaultdict(lambda: {"last_edit": datetime.fromtimestamp(0)})
+
+    for d in db.session.query(Data):
+        all_data[d.token][d.question_slug] = d.answer
+        if not only_file_edits:
+            if all_data[d.token]["last_edit"] < d.timestamp:
+                all_data[d.token]["last_edit"] = d.timestamp
+
+    for f in db.session.query(File):
+        all_data[f.token][f.file_slug] = (f.filename, f.works)
+        if all_data[f.token]["last_edit"] < f.timestamp:
+            all_data[f.token]["last_edit"] = f.timestamp
+
+    # Fully evaluated?
+    for elem in all_data.values():
+        unevaluated = [1 for f in FILES if f in elem and elem[f][1] is None]
+        elem["fully_evaluated"] = sum(unevaluated) == 0
+
+    return all_data
+
+
+@app.route('/admin/<password>/')
+@app.route('/admin/<password>/evaluate/<token>/', methods=['GET', 'POST'])
+def admin(password=None, token=None):
+    check_password(password)
 
     if request.method == 'POST':
         for file_slug in [f for f in FILES if f in request.form]:
@@ -169,21 +194,7 @@ def admin(password=None, token=None):
         db.session.commit()
         return redirect(url_for('admin', password=password))
 
-    all_data = defaultdict(lambda: {"last_edit": datetime.fromtimestamp(0)})
-    for d in db.session.query(Data):
-        all_data[d.token][d.question_slug] = d.answer
-        if all_data[d.token]["last_edit"] < d.timestamp:
-            all_data[d.token]["last_edit"] = d.timestamp
-
-    for f in db.session.query(File):
-        all_data[f.token][f.file_slug] = (f.filename, f.works)
-        if all_data[d.token]["last_edit"] < f.timestamp:
-            all_data[d.token]["last_edit"] = f.timestamp
-
-    # Fully evaluated?
-    for elem in all_data.values():
-        unevaluated = [1 for f in FILES if f in elem and elem[f][1] is None]
-        elem["fully_evaluated"] = sum(unevaluated) == 0
+    all_data = get_all_data(db)
 
     # Sort by fully evaluated and by the time of the last edit: oldest first so
     # they can be evaluated
@@ -199,6 +210,27 @@ def admin(password=None, token=None):
         FILES=FILES,
     )
 
+@app.route('/winners/')
+@app.route('/admin/<password>/winners/')
+def winners(password=None):
+    admin_mode = False
+    if password is not None:
+        check_password(password)
+        admin_mode = True
+
+    all_data = get_all_data(db, only_file_edits=True)
+
+    # Sort by number of solved problems and time the last file was submitted
+    iter_data = sorted(all_data.items(),
+            key=lambda d: (-sum([1 for f in FILES if f in d[1] and d[1][f][1]]),
+                           d[1]["last_edit"]))
+
+    return render_template(
+        'winners.html',
+        admin_mode=admin_mode,
+        data=iter_data,
+        FILES=FILES,
+    )
 
 @click.group()
 def cli():
