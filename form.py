@@ -6,6 +6,7 @@ import csv
 import io
 import hashlib
 from datetime import datetime
+from pytz import timezone
 
 from flask import Flask, render_template, request, abort, redirect, url_for
 from flask import Response, send_from_directory
@@ -31,6 +32,8 @@ def allowed_file(filename):
 
 def path_file(filename):
     return os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+tz_prague = timezone('Europe/Prague')
 
 db = database = SQLAlchemy(app)
 
@@ -79,14 +82,14 @@ def form(token=None, warning=None):
                 token=token,
                 question_slug=question,
                 answer=answer,
-                timestamp=datetime.now(),
+                timestamp=datetime.now(tz_prague),
             ))
         for checkbox in CHECKBOXES:
             db.session.merge(Data(
                 token=token,
                 question_slug=checkbox,
                 answer=checkbox in request.form,
-                timestamp=datetime.now(),
+                timestamp=datetime.now(tz_prague),
             ))
 
         user_name = request.form.get('name')
@@ -112,7 +115,7 @@ def form(token=None, warning=None):
                         file_slug=file_slug,
                         filename=filename,
                         works=None,
-                        timestamp=datetime.now(),
+                        timestamp=datetime.now(tz_prague),
                     ))
 
         db.session.commit()
