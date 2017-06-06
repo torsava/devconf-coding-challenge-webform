@@ -168,10 +168,16 @@ def admin(password=None, token=None):
         all_data[d.token][d.question_slug] = d.answer
         if all_data[d.token]["last_edit"] < d.timestamp:
             all_data[d.token]["last_edit"] = d.timestamp
+
     for f in db.session.query(File):
         all_data[f.token][f.file_slug] = (f.filename, f.works)
         if all_data[d.token]["last_edit"] < f.timestamp:
             all_data[d.token]["last_edit"] = f.timestamp
+
+    # Fully evaluated?
+    for elem in all_data.values():
+        unevaluated = [1 for f in FILES if f in elem and elem[f][1] is None]
+        elem["fully_evaluated"] = sum(unevaluated) == 0
 
     # Sort by the time of the last edit: oldest first so they can be evaluated
     iter_data = sorted(all_data.items(), key=lambda d: d[1]["last_edit"])
