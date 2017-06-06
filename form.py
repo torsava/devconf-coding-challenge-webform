@@ -196,10 +196,9 @@ def admin(password=None, token=None):
 
     all_data = get_all_data(db)
 
-    # Sort by fully evaluated and by the time of the last edit: oldest first so
-    # they can be evaluated
+    # Sort by fully evaluated and by the token
     iter_data = sorted(all_data.items(),
-            key=lambda d: (d[1]["fully_evaluated"], d[1]["last_edit"]))
+            key=lambda d: (d[1]["fully_evaluated"], d[0].lower()))
 
     return render_template(
         'admin.html',
