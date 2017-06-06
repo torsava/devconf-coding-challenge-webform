@@ -44,6 +44,7 @@ class File(db.Model):
     token = db.Column(db.Unicode, primary_key=True)
     file_slug = db.Column(db.Unicode, primary_key=True)
     filename = db.Column(db.Unicode, nullable=True)
+    works = db.Column(db.Boolean, nullable=True)
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
 
@@ -107,6 +108,7 @@ def form(token=None, warning=None):
                         token=token,
                         file_slug=file_slug,
                         filename=filename,
+                        works=None,
                     ))
 
         db.session.commit()
@@ -134,23 +136,43 @@ def file(filename):
 
 
 @app.route('/admin/<password>/')
-def admin(password=None):
+@app.route('/admin/<password>/evaluate/<token>/', methods=['GET', 'POST'])
+def admin(password=None, token=None):
     # Check an environment variable on the OpenShift server that only we know
     # the value of
     secret = os.environ.get("OPENSHIFT_APP_UUID")
     if not secret or secret != password:
         abort(werkzeug.exceptions.Unauthorized.code)
 
+    if request.method == 'POST':
+        for file_slug in [f for f in FILES if f in request.form]:
+            answer = request.form.get(file_slug)
+            works = None
+            if answer == '1':
+                works = True
+            elif answer == '0':
+                works = False
+
+            db.session.merge(File(
+                token=token,
+                file_slug=file_slug,
+                works=works,
+            ))
+
+        db.session.commit()
+        return redirect(url_for('admin', password=password))
+
     all_data = defaultdict(dict)
     for d in db.session.query(Data):
         all_data[d.token][d.question_slug] = d.answer
     for f in db.session.query(File):
-        all_data[f.token][f.file_slug] = f.filename
+        all_data[f.token][f.file_slug] = (f.filename, f.works)
 
     iter_data = sorted(all_data.items(), key=lambda d: d[1]["name"])
 
     return render_template(
         'admin.html',
+        password=password,
         data=iter_data,
         QUESTIONS=QUESTIONS,
         CHECKBOXES=CHECKBOXES,
