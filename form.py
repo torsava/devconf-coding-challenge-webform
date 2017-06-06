@@ -5,6 +5,7 @@ import urllib.parse
 import csv
 import io
 import hashlib
+from datetime import datetime
 
 from flask import Flask, render_template, request, abort, redirect, url_for
 from flask import Response, send_from_directory
@@ -162,13 +163,18 @@ def admin(password=None, token=None):
         db.session.commit()
         return redirect(url_for('admin', password=password))
 
-    all_data = defaultdict(dict)
+    all_data = defaultdict(lambda: {"last_edit": datetime.fromtimestamp(0)})
     for d in db.session.query(Data):
         all_data[d.token][d.question_slug] = d.answer
+        if all_data[d.token]["last_edit"] < d.timestamp:
+            all_data[d.token]["last_edit"] = d.timestamp
     for f in db.session.query(File):
         all_data[f.token][f.file_slug] = (f.filename, f.works)
+        if all_data[d.token]["last_edit"] < f.timestamp:
+            all_data[d.token]["last_edit"] = f.timestamp
 
-    iter_data = sorted(all_data.items(), key=lambda d: d[1]["name"])
+    # Sort by the time of the last edit: oldest first so they can be evaluated
+    iter_data = sorted(all_data.items(), key=lambda d: d[1]["last_edit"])
 
     return render_template(
         'admin.html',
