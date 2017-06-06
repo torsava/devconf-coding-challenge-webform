@@ -122,6 +122,8 @@
                     </td>
                     {% endfor %}
                     <td class="align-middle">
+                        {{ elem["last_edit"].strftime("%d.%m. %X") }}
+                        <br/>
                         <button type="submit" class="btn btn-primary btn-sm">Save</button>
                         {% if elem["fully_evaluated"] %}
                             <span style="color: green;">☑</span>

@@ -79,12 +79,14 @@ def form(token=None, warning=None):
                 token=token,
                 question_slug=question,
                 answer=answer,
+                timestamp=datetime.now(),
             ))
         for checkbox in CHECKBOXES:
             db.session.merge(Data(
                 token=token,
                 question_slug=checkbox,
                 answer=checkbox in request.form,
+                timestamp=datetime.now(),
             ))
 
         user_name = request.form.get('name')
@@ -110,6 +112,7 @@ def form(token=None, warning=None):
                         file_slug=file_slug,
                         filename=filename,
                         works=None,
+                        timestamp=datetime.now(),
                     ))
 
         db.session.commit()
