@@ -20,6 +20,8 @@ app = Flask(__name__)
 QUESTIONS = 'name', 'email'
 CHECKBOXES = 'wants_job',
 FILES = 'file_1', 'file_2', 'file_3'
+SETTINGS = 'submissions_enabled', 'scoreboard_enabled'
+SETTING_TEXTS = 'Submissions enabled', 'Scoreboard enabled'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
@@ -49,6 +51,12 @@ class File(db.Model):
     file_slug = db.Column(db.Unicode, primary_key=True)
     filename = db.Column(db.Unicode, nullable=True)
     works = db.Column(db.Boolean, nullable=True)
+    timestamp = db.Column(db.DateTime(timezone=True),
+                          server_default=db.func.now())
+
+class Setting(db.Model):
+    setting_slug = db.Column(db.Unicode, primary_key=True)
+    value = db.Column(db.Boolean, nullable=True)
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
 
@@ -172,25 +180,36 @@ def get_all_data(db, only_file_edits=False):
     return all_data
 
 
-@app.route('/admin/<password>/')
+@app.route('/admin/<password>/', methods=['GET', 'POST'])
 @app.route('/admin/<password>/evaluate/<token>/', methods=['GET', 'POST'])
 def admin(password=None, token=None):
     check_password(password)
 
     if request.method == 'POST':
-        for file_slug in [f for f in FILES if f in request.form]:
-            answer = request.form.get(file_slug)
-            works = None
-            if answer == '1':
-                works = True
-            elif answer == '0':
-                works = False
+        if not token:
+            # Site settings
+            for setting_slug in SETTINGS:
+                value = setting_slug in request.form
+                db.session.merge(Setting(
+                    setting_slug=setting_slug,
+                    value=value,
+                ))
 
-            db.session.merge(File(
-                token=token,
-                file_slug=file_slug,
-                works=works,
-            ))
+        else:
+            # Submission evaluation
+            for file_slug in [f for f in FILES if f in request.form]:
+                answer = request.form.get(file_slug)
+                works = None
+                if answer == '1':
+                    works = True
+                elif answer == '0':
+                    works = False
+
+                db.session.merge(File(
+                    token=token,
+                    file_slug=file_slug,
+                    works=works,
+                ))
 
         db.session.commit()
         return redirect(url_for('admin', password=password))
@@ -201,13 +220,17 @@ def admin(password=None, token=None):
     iter_data = sorted(all_data.items(),
             key=lambda d: (d[1]["fully_evaluated"], d[0].lower()))
 
+    settings = { s.setting_slug: s.value for s in db.session.query(Setting)}
+
     return render_template(
         'admin.html',
         password=password,
         data=iter_data,
+        settings=settings,
         QUESTIONS=QUESTIONS,
         CHECKBOXES=CHECKBOXES,
         FILES=FILES,
+        SETTING_TUPLES=zip(SETTINGS, SETTING_TEXTS)
     )
 
 @app.route('/winners/')

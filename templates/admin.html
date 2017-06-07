@@ -37,8 +37,28 @@
                     <p class="lead">
                         View the <a href="{{ url_for('winners', password=password) }}">Admin Scorebeard</a>.
                     </p>
-                    <p>
-                    </p>
+                    <form method="POST" action="{{ url_for('admin', password=password) }}">
+                    <table class="table">
+                        <tr>
+                            <th>
+                                Site Settings
+                            </th>
+                            {% for setting_slug, setting_text in SETTING_TUPLES %}
+                            <td class="checkbox">
+                                <input type="checkbox" name="{{ setting_slug }}" value="on"
+                                    {%- if setting_slug in settings
+                                           and settings[setting_slug] == 1 -%}
+                                        checked="checked"
+                                    {%- endif -%}>
+                                {{ setting_text }}
+                            </td>
+                            {% endfor %}
+                            <td>
+                                <button type="submit" class="btn btn-primary btn-sm">Set</button>
+                            </td>
+                        </tr>
+                    </table>
+                    </form>
                     <p>
                         Ordered by completed evaluation and by the time of the
                         last edit: oldest first so they can be safely
