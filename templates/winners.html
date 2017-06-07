@@ -39,11 +39,17 @@
             <div class="row">
                 <div class="col">
                     <p class="lead">
-                        Ordered by number of working solutions and the time
-                        where the last file was submitted.
+                        {% if scoreboard_enabled or admin_mode %}
+                            Ordered by number of working solutions and the time
+                            where the last file was submitted.
+                        {% else %}
+                            Evaluation of the submissions is not yet finished,
+                            please come back later.
+                        {% endif %}
                     </p>
                 </div>
             </div>
+            {% if scoreboard_enabled or admin_mode %}
             <table class="table">
                 <tr>
                     <th>
@@ -111,6 +117,7 @@
                 </form>
                 {% endfor %}
             </table>
+            {% endif %}
         </div>
 
         <footer class="footer">

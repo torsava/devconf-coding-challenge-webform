@@ -35,6 +35,11 @@ def allowed_file(filename):
 def path_file(filename):
     return os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
+def get_setting(setting_slug, default):
+    setting = db.session.query(Setting) \
+              .filter_by(setting_slug=setting_slug).first()
+    return setting.value if setting else default
+
 tz_prague = timezone('Europe/Prague')
 
 db = database = SQLAlchemy(app)
@@ -74,6 +79,9 @@ def form(token=None, warning=None):
     if not (5 < len(token) < 20):
         abort(404)
 
+    submissions_enabled = get_setting("submissions_enabled", True)
+    scoreboard_enabled = get_setting("scoreboard_enabled", False)
+
     # Saving the results into a list eliminates further SQL queries in POST
     # processing, saving it to a dict addressable by something else than the
     # object does not.
@@ -84,6 +92,9 @@ def form(token=None, warning=None):
     files = { f.file_slug: f.filename for f in prefetch['file']}
 
     if request.method == 'POST':
+        if not submissions_enabled:
+            return redirect(url_for('form', token=token))
+
         for question in QUESTIONS:
             answer = request.form.get(question)
             db.session.merge(Data(
@@ -136,6 +147,8 @@ def form(token=None, warning=None):
         files=files,
         FILES=FILES,
         token=token,
+        submissions_enabled=submissions_enabled,
+        scoreboard_enabled=scoreboard_enabled,
         show_thankyou=show_thankyou,
         warning=warning,
     )
@@ -242,6 +255,8 @@ def winners(token=None, password=None):
         check_password(password)
         admin_mode = True
 
+    scoreboard_enabled = get_setting("scoreboard_enabled", False)
+
     all_data = get_all_data(db, only_file_edits=True)
 
     # Sort by number of solved problems and time the last file was submitted
@@ -254,6 +269,7 @@ def winners(token=None, password=None):
         token=token,
         password=password,
         admin_mode=admin_mode,
+        scoreboard_enabled=scoreboard_enabled,
         data=iter_data,
         FILES=FILES,
     )
