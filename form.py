@@ -211,8 +211,9 @@ def admin(password=None, token=None):
     )
 
 @app.route('/winners/')
+@app.route('/winners/<token>/')
 @app.route('/admin/<password>/winners/')
-def winners(password=None):
+def winners(token=None, password=None):
     admin_mode = False
     if password is not None:
         check_password(password)
@@ -227,6 +228,8 @@ def winners(password=None):
 
     return render_template(
         'winners.html',
+        token=token,
+        password=password,
         admin_mode=admin_mode,
         data=iter_data,
         FILES=FILES,

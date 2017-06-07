@@ -24,7 +24,8 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Red Hat</li>
-                <li class="breadcrumb-item active">PyCon CZ Coding Challenge</li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('form') }}">PyCon CZ Coding Challenge</a></li>
                 <li class="breadcrumb-item active">Admin</li>
             </ol>
         </nav>
@@ -34,7 +35,9 @@
             <div class="row">
                 <div class="col">
                     <p class="lead">
-                        Admin access granted.
+                        View the <a href="{{ url_for('winners', password=password) }}">Admin Scorebeard</a>.
+                    </p>
+                    <p>
                     </p>
                     <p>
                         Ordered by completed evaluation and by the time of the
