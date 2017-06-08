@@ -56,15 +56,22 @@
                         The instructions can be found on our
                         <a href="https://github.com/fedora-python/pyconcz-challenge/tree/readme">GitHub</a>.
                     </p>
-                        <b>
-                            {% if submissions_enabled %}
-                                The submission deadline is Friday, 14:00.
-                            {% else %}
-                                The deadline has been reached and further
-                                submissions have been disabled.
-                            {% endif %}
-                        </b>
-                        <br/>
+                        {% if submissions_enabled %}
+                            <b>
+                                The submission deadline is Friday, 14:00, and
+                                the winners will be announced at 16:00 at the
+                                Red Hat booth.
+                            </b>
+                        {% else %}
+                            The deadline has been reached and further
+                            submissions have been disabled.<br/>
+                            <b>
+                                The winners will be announced at 16:00 at the
+                                Red Hat booth.
+                            </b>
+                        {% endif %}
+                    </p>
+                    <p>
                         {% if scoreboard_enabled %}
                             Evaluation is finished, visit the
                         {% else %}
