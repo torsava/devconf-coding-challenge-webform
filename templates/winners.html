@@ -39,13 +39,18 @@
             <div class="row">
                 <div class="col">
                     <p class="lead">
-                        {% if scoreboard_enabled or admin_mode %}
-                            Ordered by number of working solutions and the time
-                            where the last file was submitted.
-                        {% else %}
-                            Evaluation of the submissions is not yet finished,
-                            please come back later.
-                        {% endif %}
+                        The <b>announcement of winners</b> will be on <b>Friday at 16:00</b>.<br/>
+                    </p>
+                    <p>
+                        We will be <b>giving out books on OpenShift</b> to
+                        contestants on a first-come, first-served basis.
+                    </p>
+                    {% if scoreboard_enabled or admin_mode %}
+                        <p>
+                            Submissions are ordered by the number of working solutions and the time
+                            when the last file was submitted.
+                        </p>
+                    {% endif %}
                     </p>
                 </div>
             </div>
