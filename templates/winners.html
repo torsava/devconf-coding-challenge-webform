@@ -80,6 +80,7 @@
                     </th>
                 </tr>
                 {% for token, elem in data %}
+                {% if admin_mode or elem["files_submitted"] > 0 %}
                 <tr>
                     <td>
                         {{ elem["name"] }}
@@ -120,6 +121,7 @@
                     </td>
                 </tr>
                 </form>
+                {% endif %}
                 {% endfor %}
             </table>
             {% endif %}

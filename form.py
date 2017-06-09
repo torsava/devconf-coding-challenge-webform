@@ -190,6 +190,10 @@ def get_all_data(db, only_file_edits=False):
         unevaluated = [1 for f in FILES if f in elem and elem[f][1] is None]
         elem["fully_evaluated"] = sum(unevaluated) == 0
 
+    # How many files the user submitted?
+    for elem in all_data.values():
+        elem["files_submitted"] = sum([1 for f in FILES if f in elem])
+
     return all_data
 
 
