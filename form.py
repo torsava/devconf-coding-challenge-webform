@@ -182,8 +182,10 @@ def get_all_data(db, only_file_edits=False):
 
     for f in db.session.query(File):
         all_data[f.token][f.file_slug] = (f.filename, f.works)
-        if all_data[f.token]["last_edit"] < f.timestamp:
-            all_data[f.token]["last_edit"] = f.timestamp
+        # Count only the time of working files
+        if f.works == 1:
+            if all_data[f.token]["last_edit"] < f.timestamp:
+                all_data[f.token]["last_edit"] = f.timestamp
 
     # Fully evaluated?
     for elem in all_data.values():

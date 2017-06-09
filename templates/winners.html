@@ -104,7 +104,11 @@
                     </td>
                     {% endfor %}
                     <td class="align-middle">
-                        {{ elem["last_edit"].strftime("%d.%m. %X") }}
+                        {% if elem["last_edit"].timestamp() == 0 %}
+                            No working file
+                        {% else %}
+                            {{ elem["last_edit"].strftime("%d.%m. %X") }}
+                        {% endif %}
 
                         {% if admin_mode %}
                             <br/>
