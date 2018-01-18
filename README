@@ -5,5 +5,10 @@ Form to send the solutions to the Red Hat–PyCon CZ Coding Challenge
     $ python3 -m venv venv
     $ source venv/bin/activate
     $ pip install -r requirements.txt
+    $ export CODING_CHALLENGE_ADMIN_PASSWORD=<password>
     $ python form.py serve
+
+You can access the admin console at:
+
+    http://127.0.0.1:5000/admin/<password>/
 

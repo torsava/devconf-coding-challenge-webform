@@ -167,7 +167,7 @@ def file(filename):
 def check_password(password):
     # Check an environment variable on the OpenShift server that only we know
     # the value of
-    secret = os.environ.get("OPENSHIFT_APP_UUID")
+    secret = os.environ.get("CODING_CHALLENGE_ADMIN_PASSWORD")
     if not secret or secret != password:
         abort(werkzeug.exceptions.Unauthorized.code)
 
