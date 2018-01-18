@@ -19,7 +19,8 @@ app = Flask(__name__)
 
 QUESTIONS = 'name', 'email'
 CHECKBOXES = 'wants_job',
-FILES = 'file_1', 'file_2', 'file_3'
+FILES = 'file_py', 'file_c', 'file_java'
+FILE_LABELS = 'Python 3', 'C', 'Java'
 SETTINGS = 'submissions_enabled', 'scoreboard_enabled'
 SETTING_TEXTS = 'Submissions enabled', 'Scoreboard enabled'
 
@@ -145,7 +146,7 @@ def form(token=None, warning=None):
         'index.html',
         data=data,
         files=files,
-        FILES=FILES,
+        FILE_TUPLES=zip(FILES, FILE_LABELS),
         token=token,
         submissions_enabled=submissions_enabled,
         scoreboard_enabled=scoreboard_enabled,

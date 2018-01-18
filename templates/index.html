@@ -2,7 +2,7 @@
 
 <html lang="cs">
     <head>
-        <title>Red Hat–PyCon CZ Coding Challenge</title>
+        <title>Red Hat–DevConf.cz Coding Challenge</title>
 
         <!-- Required meta tags -->
         <meta charset="utf-8">
@@ -24,7 +24,7 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Red Hat</li>
-                <li class="breadcrumb-item active">PyCon CZ Coding Challenge</li>
+                <li class="breadcrumb-item active">DevConf.cz Coding Challenge</li>
             </ol>
         </nav>
 
@@ -49,7 +49,7 @@
                     (<a href="{{ url_for('form', token=token) }}">permalink</a>).
                 </div>
             {% endif %}
-            <h1>Red Hat–PyCon CZ Coding Challenge</h1>
+            <h1>Red Hat–DevConf.cz Coding Challenge</h1>
             <div class="row">
                 <div class="col">
                     <p class="lead">
@@ -58,9 +58,9 @@
                     </p>
                         {% if submissions_enabled %}
                             <b>
-                                The submission deadline is Friday, 14:00, and
-                                the winners will be announced at 16:00 at the
-                                Red Hat booth.
+                                The submission deadline is TBD, and
+                                the winners will be announced at TBD at the
+                                TBD booth.
                             </b>
                         {% else %}
                             The deadline has been reached and further
@@ -68,14 +68,10 @@
                         </p>
                         <p>
                             <b>
-                                The winners will be announced at 16:00 at the
-                                Red Hat booth.
+                                The winners will be announced at TBD at the
+                                TBD booth.
                             </b>
                         {% endif %}
-                        <br/>
-                        At the announcement, we will be <b>giving out books on
-                        OpenShift</b> to contestants on a first-come, first-served
-                        basis.
                     </p>
                     <p>
                         {% if scoreboard_enabled %}
@@ -112,10 +108,10 @@
                         I don't mind being contacted about a job offer at Red Hat one time
                     </label>
                 </div>
-                {% for file_slug in FILES %}
+                {% for file_slug, file_label in FILE_TUPLES %}
                 <div class="form-group">
                     <label for="example-text-input">
-                        Python 3 script that solves the {{ ('1st', '2nd', '3rd')[loop.index0] }} problem
+                        Solution using {{ file_label }}
                         <span class="text-muted">
                             -
                             {% if files.get(file_slug) %}
@@ -139,7 +135,7 @@
         <footer class="footer">
             <div class="container">
                 <p class="text-right">
-                    © 2017, Petr Viktorin, Tomáš Orsava.
+                    © 2018 Red Hat, Tomáš Orsava, Petr Viktorin.
                     Licensed under
                     <a href="https://github.com/encukou/feedback-form/blob/master/LICENSE">MIT</a>.
                 </p>
