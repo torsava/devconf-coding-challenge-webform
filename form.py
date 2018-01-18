@@ -24,11 +24,13 @@ SETTING_TEXTS = 'Submissions enabled', 'Scoreboard enabled'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = './files'  # can get overwritten in wsgi.py
-ALLOWED_EXTENSIONS = set(['py'])
+ALLOWED_EXTENSIONS = {'file_py': 'py',
+                      'file_c': 'c',
+                      'file_java': 'java'}
 
-def allowed_file(filename):
+def allowed_file(file_slug, filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() == ALLOWED_EXTENSIONS[file_slug]
 
 def path_file(filename):
     return os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -113,7 +115,7 @@ def form(token=None, warning=None):
         for file_slug in [f for f in FILES if f in request.files]:
             file = request.files[file_slug]
             if file:
-                if not allowed_file(file.filename):
+                if not allowed_file(file_slug, file.filename):
                     warning = 'wrong-extension'
                 else:
                     # Remove the previous file if any.
@@ -124,7 +126,7 @@ def form(token=None, warning=None):
 
                     filename = token + "__" \
                             + werkzeug.utils.secure_filename(user_name) \
-                            + "__" + file_slug + ".py"
+                            + "__" + file_slug + "." + ALLOWED_EXTENSIONS[file_slug]
                     filename = filename.replace("-", "_") # In case of a dash in user name
                     file.save(path_file(filename))
 
