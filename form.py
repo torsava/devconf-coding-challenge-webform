@@ -253,6 +253,18 @@ def winners(token=None, password=None):
         FILES=FILES,
     )
 
+@app.route('/api/<password>/unrated/', methods=['GET'])
+def api_unrated(password=None, token=None):
+    check_password(password)
+
+    files = [f for f in db.session.query(File).filter(File.valid.is_(None))
+            .order_by(File.timestamp)]
+
+    return render_template(
+        'api_unrated.txt',
+        files=files,
+    )
+
 @click.group()
 def cli():
     pass
