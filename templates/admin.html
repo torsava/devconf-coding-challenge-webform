@@ -109,47 +109,13 @@
                     {% for file_slug in FILES %}
                     <td>
                         {% if file_slug in elem %}
-                            <a href="{{ url_for('file', filename=elem[file_slug][0]) }}" target="_blank">
+                            <a href="{{ url_for('file', filename=elem[file_slug].filename) }}" target="_blank">
                                 File {{ loop.index }}</a>
-                            <br>
-
-                            <label class="radio-inline">
-                                <input type="radio" name="{{ file_slug }}" value="1"
-                                    {%- if elem[file_slug][1] == 1 -%}
-                                        checked="checked"><span style="color: green;">☑</span>
-                                    {%- else -%}
-                                       >☑
-                                    {%- endif -%}
-                                    </label>
-                            <label class="radio-inline">
-                                <input type="radio" name="{{ file_slug }}" value="-"
-                                    {%- if elem[file_slug][1] == None -%}
-                                        checked="checked"><span style="color: orange;">☐</span>
-                                    {%- else -%}
-                                       >☐
-                                    {%- endif -%}
-                                    </label>
-                            <label class="radio-inline">
-                                <input type="radio" name="{{ file_slug }}" value="0"
-                                    {%- if elem[file_slug][1] == 0 -%}
-                                        checked="checked"><span style="color: red;">☒</span>
-                                    {%- else -%}
-                                       >☒
-                                    {%- endif -%}
-                                    </label>
                         {% else %}
                             No file
                         {% endif %}
                     </td>
                     {% endfor %}
-                    <td class="align-middle">
-                        {{ elem["last_edit"].strftime("%d.%m. %X") }}
-                        <br/>
-                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                        {% if elem["fully_evaluated"] %}
-                            <span style="color: green;">☑</span>
-                        {% endif %}
-                    </td>
                 </tr>
                 </form>
                 {% endfor %}
