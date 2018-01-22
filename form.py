@@ -15,7 +15,7 @@ import click
 app = Flask(__name__)
 
 QUESTIONS = 'name', 'email'
-CHECKBOXES = 'wants_job',
+CHECKBOXES = 'is_redhatter',
 FILES = 'file_py', 'file_c', 'file_java'
 FILE_LABELS = 'Python 3', 'C', 'Java'
 SETTINGS = 'submissions_enabled', 'scoreboard_enabled'

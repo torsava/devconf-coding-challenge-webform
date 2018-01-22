@@ -103,9 +103,9 @@
                 </div>
                 <div class="form-group">
                     <label for="example-text-input">
-                        <input id="wants_job" name="wants_job" type="checkbox"
-                            {%- if data.get('wants_job', '0') != '0' -%}checked{% endif %}>
-                        I don't mind being contacted about a job offer at Red Hat one time
+                        <input id="is_redhatter" name="is_redhatter" type="checkbox"
+                            {%- if data.get('is_redhatter', '0') != '0' -%}checked{% endif %}>
+                            I am already a Red Hatter
                     </label>
                 </div>
                 {% for file_slug, file_label in FILE_TUPLES %}

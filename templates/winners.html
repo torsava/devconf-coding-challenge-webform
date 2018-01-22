@@ -75,7 +75,7 @@
                     <th>
                         Last submitted
                         {% if admin_mode %}
-                        <br/>Wants job?
+                        <br/>Redhatter?
                         {% endif %}
                     </th>
                 </tr>
@@ -112,7 +112,7 @@
 
                         {% if admin_mode %}
                             <br/>
-                            {% if elem["wants_job"] == '1' %}
+                            {% if elem["is_redhatter"] == '1' %}
                             <span style="color: green; ">
                                 ☑ Yes
                             </span>
