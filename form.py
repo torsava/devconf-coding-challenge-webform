@@ -58,8 +58,8 @@ class File(db.Model):
     file_slug = db.Column(db.Unicode, primary_key=True)
     filename = db.Column(db.Unicode, nullable=True)
     valid = db.Column(db.Boolean, nullable=True)
-    time_complexity = db.Column(db.Integer, nullable=True)
-    memory_complexity = db.Column(db.Integer, nullable=True)
+    time = db.Column(db.Integer, nullable=True)
+    memory = db.Column(db.Integer, nullable=True)
     tokens = db.Column(db.Integer, nullable=True)
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
@@ -140,8 +140,8 @@ def form(token=None, warning=None):
                         file_slug=file_slug,
                         filename=filename,
                         valid=None,
-                        time_complexity=None,
-                        memory_complexity=None,
+                        time=None,
+                        memory=None,
                         tokens=None,
                         timestamp=datetime.now(tz_prague),
                     ))
@@ -316,8 +316,8 @@ def api_rate(password=None):
 
         f.filename = filename
         f.valid = 1 if 'valid' in request.form else 0
-        f.time_complexity = request.form.get('time_complexity')
-        f.memory_complexity = request.form.get('memory_complexity')
+        f.time = request.form.get('time')
+        f.memory = request.form.get('memory')
         f.tokens = request.form.get('tokens')
         db.session.commit()
 

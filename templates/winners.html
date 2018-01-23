@@ -155,10 +155,10 @@
                         {% if file_slug in elem %}
                             {%- if elem[file_slug].valid == 1 -%}
                             <td>
-                                {{ elem[file_slug].time_complexity }}
+                                {{ elem[file_slug].time }}
                             </td>
                             <td>
-                                {{ elem[file_slug].memory_complexity }}
+                                {{ elem[file_slug].memory }}
                             </td>
                             <td>
                                 {{ elem[file_slug].tokens }}
