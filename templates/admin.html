@@ -59,10 +59,28 @@
                         </tr>
                     </table>
                     </form>
+                    <table class="table">
+                        <tr>
+                            <th>
+                                API
+                            </th>
+                            <td>
+                                <a href="{{ url_for('api_unrated', password=password) }}">
+                                    Unrated</a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('api_rate', password=password) }}">
+                                    Rate</a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('api_invalid', password=password,
+                                                    filename="PUT_FILENAME_HERE") }}">
+                                    File invalid</a>
+                            </td>
+                        </tr>
+                    </table>
                     <p>
-                        Ordered by completed evaluation and by the time of the
-                        last edit: oldest first so they can be safely
-                        evaluated.
+                        Ordered by TBD
                     </p>
                 </div>
             </div>
@@ -106,11 +124,11 @@
                         <br/>
                         {{ token }}
                     </td>
-                    {% for file_slug in FILES %}
+                    {% for file_slug, file_label in zip(FILES, FILE_LABELS) %}
                     <td>
                         {% if file_slug in elem %}
                             <a href="{{ url_for('file', filename=elem[file_slug].filename) }}" target="_blank">
-                                File {{ loop.index }}</a>
+                                {{ elem[file_slug].filename }}</a>
                         {% else %}
                             No file
                         {% endif %}
@@ -125,7 +143,7 @@
         <footer class="footer">
             <div class="container">
                 <p class="text-right">
-                    © 2017, Petr Viktorin, Tomáš Orsava.
+                    © 2018 Red Hat, Tomáš Orsava, Petr Viktorin.
                     Licensed under
                     <a href="https://github.com/encukou/feedback-form/blob/master/LICENSE">MIT</a>.
                 </p>

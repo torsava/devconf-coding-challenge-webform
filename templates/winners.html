@@ -18,6 +18,18 @@
                 padding: 1em;
                 margin-top: 5em;
             }
+
+            .table tr td, .table tr th {
+                text-align: center;
+            }
+
+            .table tr td:first-child {
+                text-align: left;
+            }
+
+            .table-spacer {
+                width: 15pt;
+            }
         </style>
     </head>
     <body>
@@ -39,78 +51,93 @@
             <div class="row">
                 <div class="col">
                     <p class="lead">
-                        The <b>announcement of winners</b> will be on <b>Friday at 16:00</b>.<br/>
-                    </p>
-                    <p>
-                        We will be <b>giving out books on OpenShift</b> to
-                        contestants on a first-come, first-served basis.
+                        The <b>announcement of winners</b> will be on <b>TBD</b>.<br/>
                     </p>
                     {% if scoreboard_enabled or admin_mode %}
                         <p>
-                            Submissions are ordered by the number of working solutions and the time
-                            when the last working file was submitted.
+                            {% if rh_mode %}
+                            This is a scoreboard for <b>Red Hatters</b>,
+                            click here to display the
+                            <a href="{{ url_for('winners', token=token, password=password, rh_string='nonrh', language=language, order=order) }}">
+                                non–Red Hatter scoreboard.</a>
+                            {% else %}
+                            This is a scoreboard for <b>non–Red Hatters</b>,
+                            click here to display the
+                            <a href="{{ url_for('winners', token=token, password=password, rh_string='rh', language=language, order=order) }}">
+                                Red Hatter scoreboard.</a>
+                            {% endif %}
                         </p>
                     {% endif %}
                     </p>
                 </div>
             </div>
             {% if scoreboard_enabled or admin_mode %}
-            <table class="table">
+            <table class="table table-sm table-hover table-responsive">
+                <thead class="thead-default">
                 <tr>
                     <th>
-                        Name
+                        Contestant
+                    </th>
+                    <th class="table-spacer"></th>
+                    <th colspan=3>
+                        Python 3 solution
+                    </th>
+                    <th class="table-spacer"></th>
+                    <th colspan=3>
+                        C solution
+                    </th>
+                    <th class="table-spacer"></th>
+                    <th colspan=3>
+                        Java solution
+                    </th>
+                </tr>
+                <tr>
+                    <th>
                         {% if admin_mode %}
-                        <br/>Email
-                        {% endif %}
-                    </th>
-                    <th>
-                        Problem 1
-                    </th>
-                    <th>
-                        Problem 2
-                    </th>
-                    <th>
-                        Problem 3
-                    </th>
-                    <th>
-                        Last submitted
-                        {% if admin_mode %}
+                        Email
                         <br/>Redhatter?
                         {% endif %}
                     </th>
+                    {% for lang in LANGUAGES %}
+                    <th class="table-spacer"></th>
+                    <th>
+                        {% if language == lang and order == 'time' %}
+                        Time
+                        {% else %}
+                        <a href="{{ url_for('winners', token=token, password=password,
+                                            rh_string=rh_string, language=lang, order='time') }}">
+                            Time</a>
+                        {% endif %}
+                    </th>
+                    <th>
+                        {% if language == lang and order == 'memory' %}
+                        Memory
+                        {% else %}
+                        <a href="{{ url_for('winners', token=token, password=password,
+                                            rh_string=rh_string, language=lang, order='memory') }}">
+                            Memory</a>
+                        {% endif %}
+                    </th>
+                    <th>
+                        {% if language == lang and order == 'tokens' %}
+                        Tokens
+                        {% else %}
+                        <a href="{{ url_for('winners', token=token, password=password,
+                                            rh_string=rh_string, language=lang, order='tokens') }}">
+                            Tokens</a>
+                        {% endif %}
+                    </th>
+                    {% endfor %}
                 </tr>
                 {% for token, elem in data %}
+                </thead>
+                <tbody>
                 {% if admin_mode or elem["files_submitted"] > 0 %}
                 <tr>
                     <td>
                         {{ elem["name"] }}
                         {% if admin_mode %}
                             <br/>{{ elem["email"] }}
-                        {% endif %}
-                    </td>
-                    {% for file_slug in FILES %}
-                    <td>
-                        {% if file_slug in elem %}
-                            {%- if elem[file_slug][1] == 1 -%}
-                                <span style="color: green;">☑ Works</span>
-                            {%- elif elem[file_slug][1] == 0 -%}
-                                <span style="color: red;">☒ Doesn't work</span>
-                            {%- else -%}
-                                Not evaluated yet
-                            {%- endif -%}
-                        {% else %}
-                            ☐ Not submitted
-                        {% endif %}
-                    </td>
-                    {% endfor %}
-                    <td class="align-middle">
-                        {% if elem["last_edit"].timestamp() == 0 %}
-                            No working file
-                        {% else %}
-                            {{ elem["last_edit"].strftime("%d.%m. %X") }}
-                        {% endif %}
-
-                        {% if admin_mode %}
                             <br/>
                             {% if elem["is_redhatter"] == '1' %}
                             <span style="color: green; ">
@@ -123,10 +150,40 @@
                             {% endif %}
                         {% endif %}
                     </td>
+                    {% for file_slug in FILES %}
+                        <td class="table-spacer"></td>
+                        {% if file_slug in elem %}
+                            {%- if elem[file_slug].valid == 1 -%}
+                            <td>
+                                {{ elem[file_slug].time_complexity }}
+                            </td>
+                            <td>
+                                {{ elem[file_slug].memory_complexity }}
+                            </td>
+                            <td>
+                                {{ elem[file_slug].tokens }}
+                            </td>
+                            {%- elif elem[file_slug].valid == 0 -%}
+                            <td colspan="3">
+                                <span style="color: red;">☒ Solution invalid</span>
+                            </td>
+                            {%- else -%}
+                            <td colspan="3">
+                                Not evaluated yet
+                            </td>
+                            {%- endif -%}
+                        {% else %}
+                        <td colspan="3">
+                            ☐ Not submitted
+                        </td>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
                 </tr>
                 </form>
                 {% endif %}
                 {% endfor %}
+                </tbody>
             </table>
             {% endif %}
         </div>
@@ -134,7 +191,7 @@
         <footer class="footer">
             <div class="container">
                 <p class="text-right">
-                    © 2017, Petr Viktorin, Tomáš Orsava.
+                    © 2018 Red Hat, Tomáš Orsava, Petr Viktorin.
                     Licensed under
                     <a href="https://github.com/encukou/feedback-form/blob/master/LICENSE">MIT</a>.
                 </p>

@@ -17,6 +17,7 @@ app = Flask(__name__)
 
 QUESTIONS = 'name', 'email'
 CHECKBOXES = 'is_redhatter',
+LANGUAGES = 'python', 'c', 'java'
 FILES = 'file_py', 'file_c', 'file_java'
 FILE_LABELS = 'Python 3', 'C', 'Java'
 SETTINGS = 'submissions_enabled', 'scoreboard_enabled'
@@ -187,11 +188,14 @@ def get_all_data(db):
     for f in db.session.query(File):
         all_data[f.token][f.file_slug] = f
 
+    # How many files the user submitted?
+    for elem in all_data.values():
+        elem["files_submitted"] = sum([1 for f in FILES if f in elem])
+
     return all_data
 
 
 @app.route('/admin/<password>/', methods=['GET', 'POST'])
-@app.route('/admin/<password>/evaluate/<token>/', methods=['GET', 'POST'])
 def admin(password=None, token=None):
     check_password(password)
 
@@ -223,35 +227,52 @@ def admin(password=None, token=None):
         QUESTIONS=QUESTIONS,
         CHECKBOXES=CHECKBOXES,
         FILES=FILES,
-        SETTING_TUPLES=zip(SETTINGS, SETTING_TEXTS)
+        FILE_LABELS=FILE_LABELS,
+        zip=zip,
+        SETTING_TUPLES=zip(SETTINGS, SETTING_TEXTS),
     )
 
-@app.route('/winners/')
 @app.route('/winners/<token>/')
+@app.route('/winners/<token>/<any(rh,nonrh):rh_string>/')
+@app.route('/winners/<token>/<any(rh,nonrh):rh_string>/<any(python,c,java):language>/<any(time,memory,tokens):order>/')
+@app.route('/winners/')
+@app.route('/winners/<any(rh,nonrh):rh_string>/')
+@app.route('/winners/<any(rh,nonrh):rh_string>/<any(python,c,java):language>/<any(time,memory,tokens):order>/')
 @app.route('/admin/<password>/winners/')
-def winners(token=None, password=None):
+@app.route('/admin/<password>/winners/<any(rh,nonrh):rh_string>/')
+@app.route('/admin/<password>/winners/<any(rh,nonrh):rh_string>/<any(python,c,java):language>/<any(time,memory,tokens):order>/')
+def winners(token=None, password=None, rh_string=None, language=None, order=None):
     admin_mode = False
     if password is not None:
         check_password(password)
         admin_mode = True
 
-    scoreboard_enabled = get_setting("scoreboard_enabled", False)
+    rh_mode = rh_string == "rh"
+    language = language or "python"
+    order = order or "time"
 
-    all_data = get_all_data(db, only_file_edits=True)
+    scoreboard_enabled = get_setting("scoreboard_enabled", False)
+    all_data = get_all_data(db)
 
     # Sort by number of solved problems and time the last file was submitted
-    iter_data = sorted(all_data.items(),
-            key=lambda d: (-sum([1 for f in FILES if f in d[1] and d[1][f][1]]),
-                           d[1]["last_edit"]))
+    iter_data = sorted(all_data.items())
+            # key=lambda d: (-sum([1 for f in FILES if f in d[1] and d[1][f][1]]),
+            #                d[1]["last_edit"]))
 
     return render_template(
         'winners.html',
         token=token,
         password=password,
+        rh_mode=rh_mode,
+        rh_string=rh_string,
+        language=language,
+        order=order,
         admin_mode=admin_mode,
         scoreboard_enabled=scoreboard_enabled,
         data=iter_data,
         FILES=FILES,
+        FILE_LABELS=FILE_LABELS,
+        LANGUAGES=LANGUAGES,
     )
 
 @app.route('/api/<password>/unrated/', methods=['GET'])
