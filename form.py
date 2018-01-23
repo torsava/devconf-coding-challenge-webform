@@ -11,6 +11,7 @@ from jinja2 import StrictUndefined
 from flask_sqlalchemy import SQLAlchemy
 import werkzeug
 import click
+import json
 
 app = Flask(__name__)
 
@@ -254,7 +255,7 @@ def winners(token=None, password=None):
     )
 
 @app.route('/api/<password>/unrated/', methods=['GET'])
-def api_unrated(password=None, token=None):
+def api_unrated(password=None):
     check_password(password)
 
     files = [f for f in db.session.query(File).filter(File.valid.is_(None))
@@ -264,6 +265,34 @@ def api_unrated(password=None, token=None):
         'api_unrated.txt',
         files=files,
     )
+
+@app.route('/api/<password>/rate/', methods=['GET', 'POST'])
+def api_rate(password=None):
+    check_password(password)
+
+    if request.method == 'POST':
+        filename = request.form.get('filename')
+
+        f = db.session.query(File).filter(File.filename==filename).first()
+        if f is None:
+            return json.dumps({'success': False}), 404, \
+                              {'ContentType': 'application/json'}
+
+        f.filename = filename
+        f.valid = 1 if 'valid' in request.form else 0
+        f.time_complexity = request.form.get('time_complexity')
+        f.memory_complexity = request.form.get('memory_complexity')
+        f.tokens = request.form.get('tokens')
+        db.session.commit()
+
+        return json.dumps({'success': True}), 200, \
+                          {'ContentType': 'application/json'}
+
+    else:
+        return render_template(
+            'api_rate.html',
+            password=password,
+        )
 
 @click.group()
 def cli():
