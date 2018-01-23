@@ -266,6 +266,21 @@ def api_unrated(password=None):
         files=files,
     )
 
+@app.route('/api/<password>/invalid/<filename>/', methods=['GET'])
+def api_invalid(password=None, filename=None):
+    check_password(password)
+
+    if filename is not None:
+        f = db.session.query(File).filter(File.filename==filename).first()
+        if f is not None:
+            f.valid = 0
+            db.session.commit()
+            return json.dumps({'success': True}), 200, \
+                              {'ContentType': 'application/json'}
+
+    return json.dumps({'success': False}), 404, \
+                      {'ContentType': 'application/json'}
+
 @app.route('/api/<password>/rate/', methods=['GET', 'POST'])
 def api_rate(password=None):
     check_password(password)
