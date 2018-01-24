@@ -55,29 +55,25 @@
                     <p class="lead">
                         The instructions are TBD
                     </p>
+                    <p>
                         {% if submissions_enabled %}
-                            <b>
-                                The submission deadline is TBD, and
-                                the winners will be announced at TBD at the
-                                TBD booth.
-                            </b>
+                            For the <b>first round</b>, the <b>submission deadline is Saturday, 15:00</b>, and
+                            the <b>winners</b> will be announced at <b>17:00 at the
+                            Red Hat booth.</b> The second round ends on Sunday
+                            at 12:00 and will be announced at 13:00.
                         {% else %}
-                            The deadline has been reached and further
+                            The first round deadline has been reached and further
                             submissions have been disabled.
-                        </p>
-                        <p>
-                            <b>
-                                The winners will be announced at TBD at the
-                                TBD booth.
-                            </b>
+
+                            The <b>winners</b> will be announced at <b>17:00 at the
+                            Red Hat booth.</b><br/>
+                            The <b>second round</b> begins shortly afterwards,
+                            ends on Sunday at 12:00 and will be announced
+                            at 13:00.
                         {% endif %}
                     </p>
                     <p>
-                        {% if scoreboard_enabled %}
-                            Evaluation is finished, visit the
-                        {% else %}
-                            After the evaluation, results will be visible on the
-                        {% endif %}
+                        See the
                         <a href="{{ url_for('winners', token=token) }}">Scorebeard</a>.
                     <p>
                     </p>
