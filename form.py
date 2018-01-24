@@ -66,8 +66,8 @@ class File(db.Model):
     file_slug = db.Column(db.Unicode, primary_key=True)
     filename = db.Column(db.Unicode, nullable=True)
     valid = db.Column(db.Boolean, nullable=True)
-    time = db.Column(db.Integer, nullable=True)
-    memory = db.Column(db.Integer, nullable=True)
+    time = db.Column(db.Float, nullable=True)
+    memory = db.Column(db.Float, nullable=True)
     tokens = db.Column(db.Integer, nullable=True)
     timestamp = db.Column(db.DateTime(timezone=True),
                           server_default=db.func.now())
@@ -344,17 +344,16 @@ def api_rate(password=None):
             return json.dumps({'success': False}), 404, \
                               {'ContentType': 'application/json'}
 
-        def input_to_int(num):
+        def input_to_number(type, num):
             try:
-                return int(num)
+                return type(num)
             except ValueError:
                 return None
-
         f.filename = filename
         f.valid = 1 if 'valid' in request.form else 0
-        f.time = input_to_int(request.form.get('time'))
-        f.memory = input_to_int(request.form.get('memory'))
-        f.tokens = input_to_int(request.form.get('tokens'))
+        f.time = input_to_number(float, request.form.get('time'))
+        f.memory = input_to_number(float, request.form.get('memory'))
+        f.tokens = input_to_number(int, request.form.get('tokens'))
         db.session.commit()
 
         return json.dumps({'success': True}), 200, \
