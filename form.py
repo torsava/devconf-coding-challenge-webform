@@ -241,22 +241,23 @@ def admin(password=None, token=None):
 
 @app.route('/winners/<token>/')
 @app.route('/winners/<token>/<any(rh,nonrh):rh_string>/')
-@app.route('/winners/<token>/<any(rh,nonrh):rh_string>/<any(python,c,java):language>/<any(time,memory,tokens):order>/')
+@app.route('/winners/<token>/<any(rh,nonrh):rh_string>/<string:language>/<string:order>/')
 @app.route('/winners/')
 @app.route('/winners/<any(rh,nonrh):rh_string>/')
-@app.route('/winners/<any(rh,nonrh):rh_string>/<any(python,c,java):language>/<any(time,memory,tokens):order>/')
+@app.route('/winners/<any(rh,nonrh):rh_string>/<string:language>/<string:order>/')
 @app.route('/admin/<password>/winners/')
 @app.route('/admin/<password>/winners/<any(rh,nonrh):rh_string>/')
-@app.route('/admin/<password>/winners/<any(rh,nonrh):rh_string>/<any(python,c,java):language>/<any(time,memory,tokens):order>/')
+@app.route('/admin/<password>/winners/<any(rh,nonrh):rh_string>/<string:language>/<string:order>/')
 def winners(token=None, password=None, rh_string=None, language=None, order=None):
     admin_mode = False
     if password is not None:
         check_password(password)
         admin_mode = True
 
+    rh_string = rh_string if rh_string == "rh" else "nonrh"
     rh_mode = rh_string == "rh"
-    language = language or "python"
-    order = order or "time"
+    language = language if language in LANGUAGES else "python"
+    order = order if order in VALUATIONS else "time"
 
     scoreboard_enabled = get_setting("scoreboard_enabled", False)
     all_data = get_all_data(db)
