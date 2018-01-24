@@ -42,7 +42,13 @@
                 <li class="breadcrumb-item">
                     <a href="{{ url_for('admin', password=password) }}">Admin</a></li>
                 {% endif %}
-                <li class="breadcrumb-item active">Scoreboard</li>
+                <li class="breadcrumb-item active">Scoreboard:
+                    {% if rh_mode %}
+                        Red Hatters
+                    {% else %}
+                     non–Red Hatters
+                     {% endif %}
+                </li>
             </ol>
         </nav>
 
@@ -95,7 +101,6 @@
                     <th>
                         {% if admin_mode %}
                         Email
-                        <br/>Redhatter?
                         {% endif %}
                     </th>
                     {% for lang in LANGUAGES %}
@@ -138,16 +143,6 @@
                         {{ elem["name"] }}
                         {% if admin_mode %}
                             <br/>{{ elem["email"] }}
-                            <br/>
-                            {% if elem["is_redhatter"] == '1' %}
-                            <span style="color: green; ">
-                                ☑ Yes
-                            </span>
-                            {% else %}
-                            <span style="color: red; ">
-                                ☒ No
-                            </span>
-                            {% endif %}
                         {% endif %}
                     </td>
                     {% for file_slug in FILES %}
