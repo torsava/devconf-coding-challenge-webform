@@ -154,15 +154,26 @@
                         <td class="table-spacer"></td>
                         {% if file_slug in elem %}
                             {%- if elem[file_slug].valid == 1 -%}
-                            <td>
-                                {{ elem[file_slug].time }}
-                            </td>
-                            <td>
-                                {{ elem[file_slug].memory }}
-                            </td>
-                            <td>
-                                {{ elem[file_slug].tokens }}
-                            </td>
+                                {% for valuation in VALUATIONS %}
+                                    {% if getattr(elem[file_slug], valuation, None) == None %}
+                                        <td>
+                                            —
+                                        </td>
+                                    {% else %}
+                                        <td
+                                        {% if elem["position"][file_slug][valuation] == 1 %}
+                                            style="color: green"
+                                        {% elif elem["position"][file_slug][valuation] == 2 %}
+                                            style="color: GreenYellow"
+                                        {% elif elem["position"][file_slug][valuation] == 3 %}
+                                            style="color: lightgreen"
+                                        {% endif %}
+                                        >
+                                        {{ getattr(elem[file_slug], valuation) }}&nbsp;({{
+                                           ordinal_number(elem["position"][file_slug][valuation]) }})
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
                             {%- elif elem[file_slug].valid == 0 -%}
                             <td colspan="3">
                                 <span style="color: red;">☒ Solution invalid</span>

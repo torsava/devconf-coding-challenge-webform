@@ -12,13 +12,15 @@ from flask_sqlalchemy import SQLAlchemy
 import werkzeug
 import click
 import json
+from itertools import product
 
 app = Flask(__name__)
 
 QUESTIONS = 'name', 'email'
 CHECKBOXES = 'is_redhatter',
 LANGUAGES = 'python', 'c', 'java'
-FILES = 'file_py', 'file_c', 'file_java'
+FILES = 'python', 'c', 'java'  # TODO unify LANGUAGES and FILES?
+VALUATIONS = 'time', 'memory', 'tokens'
 FILE_LABELS = 'Python 3', 'C', 'Java'
 SETTINGS = 'submissions_enabled', 'scoreboard_enabled'
 SETTING_TEXTS = 'Submissions enabled', 'Scoreboard enabled'
@@ -26,9 +28,7 @@ SETTING_TEXTS = 'Submissions enabled', 'Scoreboard enabled'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = './files'  # can get overwritten in wsgi.py
-ALLOWED_EXTENSIONS = {'file_py': 'py',
-                      'file_c': 'c',
-                      'file_java': 'java'}
+ALLOWED_EXTENSIONS = {'python': 'py', 'c': 'c', 'java': 'java'}
 
 def allowed_file(file_slug, filename):
     return '.' in filename and \
@@ -41,6 +41,14 @@ def get_setting(setting_slug, default):
     setting = db.session.query(Setting) \
               .filter_by(setting_slug=setting_slug).first()
     return setting.value if setting else default
+
+def ordinal_number(num):
+    if 10 <= num % 100 < 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(num % 10, "th")
+    return str(num) + suffix
+
 
 tz_prague = timezone('Europe/Prague')
 
@@ -131,7 +139,7 @@ def form(token=None, warning=None):
 
                     filename = token + "__" \
                             + werkzeug.utils.secure_filename(user_name) \
-                            + "__" + file_slug + "." + ALLOWED_EXTENSIONS[file_slug]
+                            + "." + ALLOWED_EXTENSIONS[file_slug]
                     filename = filename.replace("-", "_") # In case of a dash in user name
                     file.save(path_file(filename))
 
@@ -254,10 +262,29 @@ def winners(token=None, password=None, rh_string=None, language=None, order=None
     scoreboard_enabled = get_setting("scoreboard_enabled", False)
     all_data = get_all_data(db)
 
-    # Sort by number of solved problems and time the last file was submitted
-    iter_data = sorted(all_data.items())
-            # key=lambda d: (-sum([1 for f in FILES if f in d[1] and d[1][f][1]]),
-            #                d[1]["last_edit"]))
+    # Filter out non/RedHatters
+    rh_mode_code = '1' if rh_mode else '0'
+    all_data = {k: v for (k, v) in all_data.items()
+                if v["is_redhatter"] == rh_mode_code}
+
+
+    # Figure out positions in all languages and valuations
+    def winner_sort_key(d, lang, valuation):
+        # Not submitted, not evaluated and invalid files are sorted last (inf)
+        if getattr(d.get(lang, {}), 'valid', None):
+            return getattr(d.get(lang, {}), valuation, None) or float('inf')
+        else:
+            return float('inf')
+
+    for lang, valuation in product(LANGUAGES, VALUATIONS):
+        ordered = sorted(all_data.values(),
+                         key=lambda d: winner_sort_key(d, lang, valuation))
+        for i, d in enumerate(ordered):
+            d.setdefault("position", {}).setdefault(lang, {})[valuation] = i + 1
+
+
+    iter_data = sorted(all_data.items(),
+            key=lambda d: winner_sort_key(d[1], language, order))
 
     return render_template(
         'winners.html',
@@ -273,6 +300,9 @@ def winners(token=None, password=None, rh_string=None, language=None, order=None
         FILES=FILES,
         FILE_LABELS=FILE_LABELS,
         LANGUAGES=LANGUAGES,
+        VALUATIONS=VALUATIONS,
+        getattr=getattr,
+        ordinal_number=ordinal_number,
     )
 
 @app.route('/api/<password>/unrated/', methods=['GET'])
@@ -314,11 +344,17 @@ def api_rate(password=None):
             return json.dumps({'success': False}), 404, \
                               {'ContentType': 'application/json'}
 
+        def input_to_int(num):
+            try:
+                return int(num)
+            except ValueError:
+                return None
+
         f.filename = filename
         f.valid = 1 if 'valid' in request.form else 0
-        f.time = request.form.get('time')
-        f.memory = request.form.get('memory')
-        f.tokens = request.form.get('tokens')
+        f.time = input_to_int(request.form.get('time'))
+        f.memory = input_to_int(request.form.get('memory'))
+        f.tokens = input_to_int(request.form.get('tokens'))
         db.session.commit()
 
         return json.dumps({'success': True}), 200, \
