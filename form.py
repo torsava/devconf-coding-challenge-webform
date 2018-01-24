@@ -137,9 +137,8 @@ def form(token=None, warning=None):
                     if file_slug in files and files[file_slug]:
                         os.remove(path_file(files[file_slug]))
 
-                    filename = token + "__" \
-                            + werkzeug.utils.secure_filename(user_name) \
-                            + "." + ALLOWED_EXTENSIONS[file_slug]
+                    filename = token + "___" \
+                            + werkzeug.utils.secure_filename(file.filename)
                     filename = filename.replace("-", "_") # In case of a dash in user name
                     file.save(path_file(filename))
 
