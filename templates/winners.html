@@ -168,7 +168,12 @@
                                             style="color: lightgreen"
                                         {% endif %}
                                         >
-                                        {{ getattr(elem[file_slug], valuation) }}&nbsp;({{
+                                        {% if valuation == "memory" %}
+                                            {{ getattr(elem[file_slug], valuation) | round | int -}}
+                                        {% else -%}
+                                            {{ getattr(elem[file_slug], valuation) -}}
+                                        {% endif -%}
+                                        &nbsp;({{
                                            ordinal_number(elem["position"][file_slug][valuation]) }})
                                     {% endif %}
                                 </td>
