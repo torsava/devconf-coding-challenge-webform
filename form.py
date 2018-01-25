@@ -157,7 +157,7 @@ def form(token=None, warning=None):
         return redirect(url_for('form', token=token, warning=warning))
 
     return render_template(
-        'index.html',
+        'form.html',
         data=data,
         files=files,
         FILE_TUPLES=zip(FILES, FILE_LABELS),
