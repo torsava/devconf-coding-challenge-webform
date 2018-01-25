@@ -82,6 +82,7 @@
                         write a program that will take an opponent's die and
                         output some die which will win against it more than
                         half the time. If no die satisfies the task
+                        requirements, return an empty list.
                     </p>
                     <h3>Input</h3>
                     <p>
@@ -102,19 +103,25 @@
                         comma separated values. If solution for given input
                         doesn't exist, print empty string.
                     </p>
-                    <h3>Performance testing</h3>
+                    <h3>Scoring</h3>
+                    <p>
+                        Your submission will be scored in 3 categories: time,
+                        memory usage and tokens. Tokens represent the lenght of
+                        your script in meaningful units of code (i.e. making
+                        the variable and function names shorter won't help, but
+                        using less variables and functions will).
+                    </p>
                     <p>
                         Your program will be tested by several performance
-                        tests judging how your program does in terms of time
-                        and memory. Each test will be rerun several times and
-                        the values will be averaged.
+                        tests judging it in terms of time and memory. Each test
+                        will be rerun several times and the values will be
+                        averaged.
                     </p>
                     <p>
                         Be warned that each test has to finish within 60
                         seconds on our testing laptop (Intel Core i7 with 4
                         cores, 12GB RAM). If your program takes longer, it will
-                        be terminated and 120 seconds will be counted towards
-                        the average time.
+                        be terminated and marked as timeouted.
                     </p>
                     <a name="languages"/>
                     <h2>Language specific instructions</h2>
@@ -150,7 +157,33 @@
                         </tr>
                     </table>
                     {% if language == "python" %}
-                        python TODO
+                        <h3>Prerequisites</h3>
+                        <p>
+                            Python 3.6
+                        </p>
+
+                        <h3>Submitting your solution</h3>
+                        <p>
+                            You must submit your solution in the form of Python
+                            source code. This source code must be placed in one
+                            and only one file with a name of your choosing.
+                        </p>
+                        <p>
+                            Your solution must run using the following
+                            command, without any extra dependencies, accepting
+                            the opponent's die as the first command line
+                            argument:
+                        </p>
+                        <p>
+                            <code>
+                                $ python3 your_solution_file.py 1,2,3,4,5,6
+                            </code>
+                        </p>
+                        <p>
+                            Your solution must not print anything to the
+                            standard input or output, other than the final
+                            computation result.
+                        </p>
                     {% elif language == "c" %}
                         <h3>Prerequisites</h3>
                         <p>
@@ -220,7 +253,9 @@
                             </code>
                         </p>
                         <p>
-                        Your solution must include the standard Java main method, that is a method with the following signature:
+                            Your solution must include the standard Java main
+                            method, that is a method with the following
+                            signature:
                         </p>
 
                         <p>
@@ -246,22 +281,22 @@
                         <h3>Specifics of the JVM we're using</h3>
                         <p>
                             To run your code, we will be using the following
-                            JRE (FIXME replace with the actual Java you'll be
-                            using):
+                            JRE:
                         </p>
 
                         <p>
                             <code>
                                 openjdk version "9.0.1"
+                            </code><br/>
+                            <code>
                                 OpenJDK Runtime Environment (build 9.0.1+11)
-                                OpenJDK 64-Bit Server VM (build 9.0.1+11, mixed mode)`
+                            </code><br/>
+                            <code>
+                                OpenJDK 64-Bit Server VM (build 9.0.1+11, mixed mode)
                             </code>
                         </p>
                         <p>
-                            Your code will be run on Intel Core i7-6600U CPU @
-                            2.60GHz with 20GB RAM and an SSD drive, running
-                            Fedora 27. (FIXME replace with the actual
-                            configuration). We will be limiting the memory
+                            We will be limiting the memory
                             allocation pool to 32 megabytes.
                         </p>
                         <p>
