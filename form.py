@@ -272,9 +272,10 @@ def winners(token=None, password=None, rh_string=None, language=None, order=None
     def winner_sort_key(d, lang, valuation):
         # Not submitted, not evaluated and invalid files are sorted last (inf)
         if getattr(d.get(lang, {}), 'valid', None):
-            return getattr(d.get(lang, {}), valuation, None) or float('inf')
-        else:
-            return float('inf')
+            value = getattr(d.get(lang, {}), valuation, None)
+            if value is not None:
+                return value
+        return float('inf')
 
     for lang, valuation in product(LANGUAGES, VALUATIONS):
         ordered = sorted(all_data.values(),
