@@ -169,10 +169,12 @@
                                         {% endif %}
                                         >
                                         {% if valuation == "memory" %}
-                                            {{ getattr(elem[file_slug], valuation) | round | int -}}
-                                        {% else -%}
+                                            {{ getattr(elem[file_slug], valuation) | round | int -}}kB
+                                        {%- elif valuation == "time" %}
+                                            {{ getattr(elem[file_slug], valuation) -}}s
+                                        {%- else -%}
                                             {{ getattr(elem[file_slug], valuation) -}}
-                                        {% endif -%}
+                                        {%- endif -%}
                                         &nbsp;({{
                                            ordinal_number(elem["position"][file_slug][valuation]) }})
                                     {% endif %}
