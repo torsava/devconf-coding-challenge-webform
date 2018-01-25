@@ -66,6 +66,9 @@ class File(db.Model):
     file_slug = db.Column(db.Unicode, primary_key=True)
     filename = db.Column(db.Unicode, nullable=True)
     valid = db.Column(db.Boolean, nullable=True)
+    timeouted = db.Column(db.Boolean, nullable=True)
+          # timeouted is a subtype of in-valid, so always be sure to set
+          # valid=0 if timeouted=1
     time = db.Column(db.Float, nullable=True)
     memory = db.Column(db.Float, nullable=True)
     tokens = db.Column(db.Integer, nullable=True)
@@ -147,6 +150,7 @@ def form(token=None, warning=None):
                         file_slug=file_slug,
                         filename=filename,
                         valid=None,
+                        timeouted=None,
                         time=None,
                         memory=None,
                         tokens=None,
@@ -351,7 +355,10 @@ def api_rate(password=None):
             except ValueError:
                 return None
         f.filename = filename
-        f.valid = 1 if 'valid' in request.form else 0
+        f.timeouted = 1 if 'timeouted' in request.form else 0
+        f.valid = 0 if 'timeouted' in request.form else 1
+          # If it timeouted, it's invalid. Solely invalid files have a
+          # different API entrypoint
         f.time = input_to_number(float, request.form.get('time'))
         f.memory = input_to_number(float, request.form.get('memory'))
         f.tokens = input_to_number(int, request.form.get('tokens'))

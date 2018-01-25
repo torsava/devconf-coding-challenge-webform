@@ -180,7 +180,11 @@
                                 {% endfor %}
                             {%- elif elem[file_slug].valid == 0 -%}
                             <td colspan="3">
-                                <span style="color: red;">☒ Solution invalid</span>
+                                {% if elem[file_slug].timeouted ==1 %}
+                                    <span style="color: red;">☒ Solution timeouted</span>
+                                {% else %}
+                                    <span style="color: red;">☒ Solution invalid</span>
+                                {% endif %}
                             </td>
                             {%- else -%}
                             <td colspan="3">
