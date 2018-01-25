@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+    <head>
+        <title>Red Hat–DevConf.cz Coding Challenge</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        <style>
+            .footer {
+                background-color: #ECEEEF;
+                padding: 1em;
+                margin-top: 5em;
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Red Hat</li>
+                <li class="breadcrumb-item active">DevConf.cz Coding Challenge</li>
+            </ol>
+        </nav>
+
+        <div class="container">
+            <h1>Red Hat–DevConf.cz Coding Challenge</h1>
+            <div class="row">
+                <div class="col">
+                    <p class="lead">
+                        <a href="{{ url_for('form', token=token) }}">
+                            Sumbit a solution</a>,
+                        or see the
+                        <a href="{{ url_for('winners', token=token) }}">Scorebeard</a>.
+                    </p>
+                    <p>
+                        {% if submissions_enabled %}
+                            For the <b>first round</b>, the <b>submission deadline is Saturday, 16:00</b>, and
+                            the <b>winners</b> will be announced at <b>17:00 at the
+                            Red Hat booth.</b> The second round ends on Sunday
+                            at 12:00 and will be announced at 13:00.
+                        {% else %}
+                            The first round deadline has been reached and further
+                            submissions have been disabled.
+
+                            The <b>winners</b> will be announced at <b>17:00 at the
+                            Red Hat booth.</b><br/>
+                            The <b>second round</b> begins shortly afterwards,
+                            ends on Sunday at 12:00 and will be announced
+                            at 13:00.
+                        {% endif %}
+                    </p>
+                    <h2>Task description</h2>
+                    <p>
+                        For this task, you're going to play a dice game, but
+                        first you must prepare for an overwhelming victory. The
+                        game itself is very simple. Both players roll a single
+                        die and whoever rolls highest scores a point. (On a
+                        tie, both players must reroll until someone scores.)
+                    </p>
+                    <p>
+                        These aren't standard dice however. Each player can put
+                        any positive number on any side of the die as long as
+                        the number of sides match and the total of all the
+                        chosen numbers are the same. For example, one player
+                        might use a six sided die with the numbers [3, 3, 3, 3,
+                        6, 6] while the other player uses a six sided die with
+                        the numbers [4, 4, 4, 4, 4, 4]. The interesting part of
+                        this game is that even with the same number of sides
+                        and the same total, different dice have different
+                        chances of winning. Using the example die, the player
+                        with all 4's will win 2/3 of the time.
+                    </p>
+                    <p>
+                        To prepare for this game, you're investigating
+                        different ways of picking the numbers. To do this,
+                        write a program that will take an opponent's die and
+                        output some die which will win against it more than
+                        half the time. If no die satisfies the task
+                    </p>
+                    <h3>Input</h3>
+                    <p>
+                        Comma separated numbers representing opponent's die as
+                        a first command line argument of your program.
+                    </p>
+                    <p>
+                        For example:
+                    </p>
+                    <p>
+                        <code>
+                            $ &lt;your_program&gt; 3,3,3,3,6,6
+                        </code>
+                    </p>
+                    <h3>Output</h3>
+                    <p>
+                        Print your solution to <code>stdout</code> also as
+                        comma separated values. If solution for given input
+                        doesn't exist, print empty string.
+                    </p>
+                    <a name="languages"/>
+                    <h2>Language specific instructions</h2>
+                    <table class="table">
+                        <tr>
+                            <td style="width: 33%;">
+                                {% if language == "python" %}
+                                    <h3>Python</h3>
+                                {% else %}
+                                    <h3><a href="{{
+                                            url_for('index', token=token, language='python')
+                                            }}#languages">Python</a></h3>
+                                {% endif %}
+                            </td>
+                            <td style="width: 33%;">
+                                {% if language == "c" %}
+                                    <h3>C</h3>
+                                {% else %}
+                                    <h3><a href="{{
+                                            url_for('index', token=token, language='c')
+                                            }}#languages">C</a></h3>
+                                {% endif %}
+                            </td>
+                            <td style="width: 33%;">
+                                {% if language == "java" %}
+                                    <h3>Java</h3>
+                                {% else %}
+                                    <h3><a href="{{
+                                            url_for('index', token=token, language='java')
+                                            }}#languages">Java</a></h3>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                    {% if language == "python" %}
+                        python TODO
+                    {% elif language == "c" %}
+                        <h3>Prerequisites</h3>
+                        <p>
+                            You're going to need an implementation clang. If
+                            you're using Linux, just install the package. If
+                            you're using Windows, go fish.
+                        </p>
+
+                        <h3>Submitting your solution</h3>
+                        <p>
+                            You must submit your solution in the form of C
+                            source code. This source code must be placed in one
+                            and only one file with a name of your choosing.
+                            Your solution must compile using the following
+                            command, without any extra dependencies:
+                        </p>
+                        <p>
+                            <code>
+                                $ clang YourSolutionFile.c -o solution
+                            </code>
+                        </p>
+                        <p>
+                            Your solution must include the standard C main
+                            method, that is a method with the following
+                            signature:
+                        </p>
+                        <p>
+                            <code>
+                                int main(int argc, char *argv[])
+                            </code>
+                        </p>
+                        <p>
+                            We will use this method as the entry point to your
+                            submitted solution, using a command such as this:
+                        </p>
+                        <p>
+                            <code>
+                                $ ./solution 1,2,3,4,5,6
+                            </code>
+                        </p>
+                        <p>
+                            Your solution must not print anything to the
+                            standard input or output, other than the final
+                            computation result.
+                        </p>
+                    {% elif language == "java" %}
+                        <h3>Prerequisites</h3>
+                        <p>
+                            You're going to need an implementation of Java SE
+                            9, preferably OpenJDK 9. If you're using Linux,
+                            just install the package. If you're using Windows,
+                            go fish.
+                        </p>
+
+                        <h3>Submitting your solution</h3>
+                        <p>
+                            You must submit your solution in the form of Java
+                            source code. This source code must be placed in one
+                            and only one file with a name of your choosing.
+                            Your solution must compile using the following
+                            command, without any extra dependencies:
+                        </p>
+
+                        <p>
+                            <code>
+                                $ javac YourSolutionFile.java
+                            </code>
+                        </p>
+                        <p>
+                        Your solution must include the standard Java main method, that is a method with the following signature:
+                        </p>
+
+                        <p>
+                            <code>
+                                public static void main(final String... args)
+                            </code>
+                        </p>
+                        <p>
+                            We will use this method as the entry point to your
+                            submitted solution, using a command such as this:
+                        </p>
+                        <p>
+                            <code>
+                                $ java YourSolutionFile 1,2,3,4,5,6
+                            </code>
+                        </p>
+                        <p>
+                            Your solution must not print anything to the
+                            standard input or output, other than the final
+                            computation result.
+                        </p>
+
+                        <h3>Specifics of the JVM we're using</h3>
+                        <p>
+                            To run your code, we will be using the following
+                            JRE (FIXME replace with the actual Java you'll be
+                            using):
+                        </p>
+
+                        <p>
+                            <code>
+                                openjdk version "9.0.1"
+                                OpenJDK Runtime Environment (build 9.0.1+11)
+                                OpenJDK 64-Bit Server VM (build 9.0.1+11, mixed mode)`
+                            </code>
+                        </p>
+                        <p>
+                            Your code will be run on Intel Core i7-6600U CPU @
+                            2.60GHz with 20GB RAM and an SSD drive, running
+                            Fedora 27. (FIXME replace with the actual
+                            configuration). We will be limiting the memory
+                            allocation pool to 32 megabytes.
+                        </p>
+                        <p>
+                            The final command we will use to run your
+                            submission will therefore be:
+                        </p>
+                        <p>
+                            <code>
+                                $ java -Xms32m -Xmx32m YourSolutionFile 1,2,3,4,5,6
+                            </code>
+                        </p>
+                        <p>
+                            We are aware of the fact that this JVM
+                            configuration may make several non-deterministic
+                            performance optimizations which may give unfair
+                            advantage to different solutions running in
+                            different JVM instances. To offset this, we will be
+                            executing each submission multiple times and the
+                            resulting score will be based on an average of the
+                            individual execution times.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <p class="text-right">
+                    © 2018 Red Hat, Tomáš Orsava, Petr Viktorin.
+                    Licensed under
+                    <a href="https://github.com/encukou/feedback-form/blob/master/LICENSE">MIT</a>.
+                </p>
+                <p class="text-right">
+                    Source code on
+                    <a href="https://github.com/torsava/devconf-coding-challenge-webform">Github</a>.
+                </p>
+            </div>
+        </footer>
+    </body>
+</html>

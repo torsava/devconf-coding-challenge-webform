@@ -36,8 +36,8 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Red Hat</li>
-                <li class="breadcrumb-item">
-                    <a href="{{ url_for('form', token=token) }}">DevConf.cz Coding Challenge</a></li>
+                <li class="breadcrumb-item"><a
+                        href="{{ url_for('index', token=token) }}">DevConf.cz Coding Challenge</a></li>
                 {% if admin_mode %}
                 <li class="breadcrumb-item">
                     <a href="{{ url_for('admin', password=password) }}">Admin</a></li>

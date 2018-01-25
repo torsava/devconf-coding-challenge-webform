@@ -82,6 +82,20 @@ class Setting(db.Model):
                           server_default=db.func.now())
 
 @app.route('/')
+@app.route('/index/')
+@app.route('/index/<token>/')
+@app.route('/index/<token>/<any(python,c,java):language>/')
+@app.route('/index/<any(python,c,java):language>/')
+def index(token=None, language=None):
+    submissions_enabled = get_setting("submissions_enabled", True)
+
+    return render_template(
+        'index.html',
+        token=token,
+        language=language,
+        submissions_enabled=submissions_enabled,
+    )
+
 @app.route('/form/')
 @app.route('/form/<token>/', methods=['GET', 'POST'])
 @app.route('/form/<token>/<warning>/', methods=['GET', 'POST'])
