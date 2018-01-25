@@ -318,7 +318,19 @@ def api_unrated(password=None):
             .order_by(File.timestamp)]
 
     return render_template(
-        'api_unrated.txt',
+        'api_list.txt',
+        files=files,
+    )
+
+@app.route('/api/<password>/invalid-list/', methods=['GET'])
+def api_invalid_list(password=None):
+    check_password(password)
+
+    files = [f for f in db.session.query(File).filter(File.valid.is_(False))
+            .order_by(File.timestamp)]
+
+    return render_template(
+        'api_list.txt',
         files=files,
     )
 
