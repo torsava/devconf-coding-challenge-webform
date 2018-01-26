@@ -63,21 +63,19 @@
                         The second round ends on Sunday at
                         12:00 and will be announced at 13:00.
                     </p>
-                    {% if scoreboard_enabled or admin_mode %}
-                        <p>
-                            {% if rh_mode %}
-                            This is a scoreboard for <b>Red Hatters</b>,
-                            click here to display the
-                            <a href="{{ url_for('winners', token=token, password=password, rh_string='nonrh', language=language, order=order) }}">
-                                non–Red Hatter scoreboard.</a>
-                            {% else %}
-                            This is a scoreboard for <b>non–Red Hatters</b>,
-                            click here to display the
-                            <a href="{{ url_for('winners', token=token, password=password, rh_string='rh', language=language, order=order) }}">
-                                Red Hatter scoreboard.</a>
-                            {% endif %}
-                        </p>
-                    {% endif %}
+                    <p>
+                        {% if rh_mode %}
+                        This is a scoreboard for <b>Red Hatters</b>,
+                        click here to display the
+                        <a href="{{ url_for('winners', token=token, password=password, rh_string='nonrh', language=language, order=order) }}">
+                            non–Red Hatter scoreboard.</a>
+                        {% else %}
+                        This is a scoreboard for <b>non–Red Hatters</b>,
+                        click here to display the
+                        <a href="{{ url_for('winners', token=token, password=password, rh_string='rh', language=language, order=order) }}">
+                            Red Hatter scoreboard.</a>
+                        {% endif %}
+                    </p>
                     </p>
                 </div>
             </div>
